@@ -5,7 +5,7 @@
   --color-terciario: #A6B1E1;
   --color-cuarto: #424874;
   --azul-oscuro: #0c2342;
-  --azul-intermedio: #0d4f81;
+  --azul-intermedio: #0d4f81; 
   --negro: #323232;
   --naranja-claro: #ffe6b1;
   --rojo-claro: #FFACAC;
@@ -18,7 +18,7 @@
 }
 
 .fondo-principal {
-  background-color: var(--color-cuarto);
+  background-color: var( --color-secundario);
   color: var(--color-primario);
 }
 
@@ -205,12 +205,12 @@ label{
 
 /* Navbar superior */
 .navbar {
-  background-color: var(--color-cuarto)!important; 
-  position: fixed; 
-  width: calc(100% - 70px);
-  left: 70px; 
+  background-color: var(--color-cuarto) !important;
+  position: fixed;
+  width: 100%;
+  left: 0;
   top: 0;
-  z-index: 10; 
+  z-index: 0;
 }
 
 
@@ -235,4 +235,14 @@ label{
 .user-container {
   display: flex;
   align-items: center; /* Para alinear verticalmente la imagen y el texto */
+}
+
+.navbar-custom-container {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.navbar .navbar-collapse {
+  margin-left: 0;
+  padding-left: 0;
 }

@@ -8,6 +8,7 @@ import Perfil from './fragment/Perfil';
 import ListaUsuarios from './fragment/ListaUsuarios';
 import RolMenu from './fragment/RolMenu';
 import LayoutComponent from './fragment/LayoutComponent';
+import MenuBar from "./fragment/MenuBar";
 
 function App() {
   return (
@@ -15,12 +16,12 @@ function App() {
       <Routes>
         <Route path='*' element={<Navigate to='/login' />} />
         <Route path='/login' element={<Login />} />
-        <Route path="/" element={<LayoutComponent />}>
-          <Route path='/registrar-usuario' element={<Registrar />} />
+
+          <Route path='/registrar' element={<Registrar />} />
           <Route path='/perfil' element={<Perfil />} />
           <Route path='/usuarios' element={<ListaUsuarios />} />
           <Route path="/proyecto/:external_id" element={<RolMenu />} />
-        </Route>
+   
       </Routes>
     </div>
   );

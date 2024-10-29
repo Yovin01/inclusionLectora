@@ -22,7 +22,6 @@ const Registrar = () => {
     };
 
     useEffect(() => {
-        // Actualiza el estado de coincidencia de la clave y confirmación
         setPasswordMatch(confirmPassword === watch('clave'));
     }, [confirmPassword, watch('clave')]);
 
@@ -77,9 +76,12 @@ const Registrar = () => {
     };
 
     return (
-        <div>
-            <div className="contenedor-carta">
-                <p className="titulo-primario">Registro de usuario</p>
+        <div className="container-fluid d-flex justify-content-center align-items-center vh-100 fondo-principal">
+            <div className="register-container">
+                <div className="text-center mb-4" >
+                    <img src="/logo192.png"alt="Inclusión lectora" style={{ width: '150px' }} />
+                </div>
+                <h2 className="text-center mb-4 titulo-primario">Inclusión Lectora</h2>
                 <form className="row g-3 p-2" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
                     <div className="col-md-6">
                         <label htmlFor="nombres" className="form-label">Ingrese sus nombres</label>
@@ -258,3 +260,4 @@ const Registrar = () => {
 };
 
 export default Registrar;
+
