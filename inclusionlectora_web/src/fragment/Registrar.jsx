@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/Registro_Style.css';
 import '../css/Login_Style.css';
 import '../css/style.css';
-import { GuardarImages } from '../utilities/hooks/Conexion';
+import { GuardarArchivos } from '../utilities/hooks/Conexion';
 import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { borrarSesion, getToken } from '../utilities/Sessionutil';
@@ -44,7 +44,7 @@ const Registrar = () => {
             formData.append('foto', defaultPhotoUrl);
         }
 
-        GuardarImages(formData, getToken(), "/entidad/guardar").then(info => {
+        GuardarArchivos(formData, getToken(), "/entidad/guardar").then(info => {
             if (info.code !== 200) {
                 mensajes(info.msg, 'error', 'Error');
                 borrarSesion();
@@ -79,7 +79,7 @@ const Registrar = () => {
         <div className="container-fluid d-flex justify-content-center align-items-center vh-100 fondo-principal">
             <div className="register-container">
                 <div className="text-center mb-4" >
-                    <img src="/logo192.png"alt="Inclusión lectora" style={{ width: '150px' }} />
+                    <img src="/logo192.png" alt="Inclusión lectora" style={{ width: '150px' }} />
                 </div>
                 <h2 className="text-center mb-4 titulo-primario">Inclusión Lectora</h2>
                 <form className="row g-3 p-2" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">

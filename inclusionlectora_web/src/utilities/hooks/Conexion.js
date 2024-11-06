@@ -81,12 +81,10 @@ export const peticionPut = async (key, URL,data) => {
     return datos;
 }
 
-export const GuardarImages = async (data, key, urls) => {
+export const GuardarArchivos = async (data, key, urls) => {
     const headers = {
         "x-api-token": key,
     };
-
-
     const requestOptions = {
         method: "POST",
         headers: headers, 

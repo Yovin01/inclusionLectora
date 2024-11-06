@@ -14,6 +14,8 @@ const CuentaController = require('../controls/CuentaController');
 var cuentaController = new CuentaController();
 const RolEntidadController = require('../controls/RolEntidadController');
 const rolEntidadController = new RolEntidadController();
+const DocumentoController = require("../controls/DocumnetoController");
+const documentoController = new DocumentoController();
 
 
 /* GET users listing. */
@@ -91,6 +93,17 @@ const extensionesAceptadasFoto = (req, file, cb) => {
   }
 };
 
+const extensionesAceptadasDocumentos = (req, file, cb) => {
+  const allowedExtensions = ['.pdf', '.doc', '.txt'];
+  console.log(file);
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowedExtensions.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo se permiten archivos pdf, doc y text.'), false);
+  }
+};
+
 // Configuración de Multer con control de tamaño y tipo de archivo
 const uploadFoto = (folderPath) => {
   const storage = createStorage(folderPath);
@@ -103,9 +116,22 @@ const uploadFoto = (folderPath) => {
   });
 };
 
+const uploadDocumentoTamano = (folderPath) => {
+  const storage = createStorage(folderPath);
+  return multer({
+    storage: storage,
+    fileFilter: extensionesAceptadasDocumentos,
+    limits: {
+      fileSize: 500 * 1024 * 1024  // 500MB
+    }
+  });
+};
+
 
 // Ejemplos de uso
 const uploadFotoPersona = uploadFoto('../public/images/users');
+const uploadDocumento = uploadDocumentoTamano('../public/documentos');
+
 
 //INICIO DE SESION
 router.post('/sesion', [
@@ -135,6 +161,24 @@ router.post('/entidad/guardar', (req, res, next) => {
       });
     }
     entidadController.guardar(req, res, next);
+  });
+});
+
+router.post('/documento', (req, res, next) => {
+  uploadDocumento.single('documento')(req, res, (error) => {
+    if (error) {
+      if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({
+          msg: "El archivo es demasiado grande. Por favor, sube un archivo de menos de 500 MB.",
+          code: 413
+        });
+      }
+      return res.status(400).json({
+        msg: "Error al cargar el archivo: " + error.message,
+        code: 400
+      });
+    }
+    documentoController.guardar(req, res, next);
   });
 });
 
