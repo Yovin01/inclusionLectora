@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import logoWhite from '../img/logo-white.png';
 import '../css/style.css';
 
-const ManuBar = () => {
+const MenuBar = () => {
     const [nombreUsuario, setNombreUsuario] = useState('');
     const [fotoUsuario, setFotoUsuario] = useState('');
     const token = getToken();
@@ -46,7 +46,7 @@ const ManuBar = () => {
                         <Dropdown align="end" className="ms-auto">
                             <Dropdown.Toggle variant="link" id="dropdown-user" className="d-flex align-items-center p-0">
                                 <img
-                                    src={`${URLBASE}/images/users/${fotoUsuario}`}
+                                    src={`${URLBASE}images/users/${fotoUsuario}`}
                                     alt="FotoUsuario"
                                     className="rounded-circle"
                                     style={{ width: '40px', height: '40px', marginRight: '10px' }}
@@ -65,4 +65,4 @@ const ManuBar = () => {
     );
 };
 
-export default ManuBar;
+export default MenuBar;

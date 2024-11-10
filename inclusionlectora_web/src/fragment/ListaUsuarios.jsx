@@ -56,7 +56,7 @@ const ListaUsuarios = () => {
     }
 
     const obtenerId = (externalId) => {
-        peticionGet(getToken(), `/obtener/entidad/${externalId}`).then((info) => {
+        peticionGet(getToken(), `obtener/entidad/${externalId}`).then((info) => {
             var datos = info.info;
             if (info.code !== 200 || info.msg === "TOKEN NO VALIDO O EXPIRADO") {
                 mensajes(info.msg, "error", "error");
@@ -125,7 +125,7 @@ const ListaUsuarios = () => {
                                             data.map((data) => (
                                                 <tr key={data.id}>
                                                     <td className="text-center" style={{ backgroundColor: "#FFFFFF", border: "none" }}>
-                                                        <img src={URLBASE + "/images/users/" + data.foto} alt="Avatar" style={{ width: '50px', height: '50px' }} />
+                                                        <img src={URLBASE + "images/users/" + data.foto} alt="Avatar" style={{ width: '50px', height: '50px' }} />
                                                     </td>
                                                     <td className="text-center">{data.nombres}</td>
                                                     <td className="text-center">{data.apellidos}</td>

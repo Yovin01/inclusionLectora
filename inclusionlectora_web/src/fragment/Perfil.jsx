@@ -33,7 +33,7 @@ const Perfil = () => {
                                     <div className="card-body">
                                         <div className="d-flex flex-column align-items-center text-center">
                                             <img
-                                                src={usuario.user.foto ? `${URLBASE}/images/users/${usuario.user.foto}` : '/img/logo512.png'}
+                                                src={usuario.user.foto ? `${URLBASE}images/users/${usuario.user.foto}` : '/img/logo512.png'}
                                                 alt="FotoUsuario"
                                                 className="img-fluid"
                                                 style={{ maxWidth: '300px', height: 'auto', borderRadius: '0.2rem' }} // Mantén la altura automática
