@@ -31,36 +31,54 @@ class DocumentoController {
                 chunks.push(textoPlano.substring(i, i + 4000));
             }
 
-            const audioFilePaths = [];
-            for (let batchStart = 0; batchStart < chunks.length; batchStart += 50) {
-                const batchPromises = [];
-
-                for (let index = batchStart; index < Math.min(batchStart + 50, chunks.length); index++) {
-                    const mp3FileName = documentoNameCifrado.replace(/\.pdf$/, `_${index + 1}.mp3`);
-                    const mp3FilePath = path.join(audioDir, mp3FileName);
-                    audioFilePaths.push(mp3FilePath);
-                    const gttsInstance = new gtts(chunks[index], 'es');
-                    const saveAudioPromise = new Promise((resolve, reject) => {
-                        gttsInstance.save(mp3FilePath, (err) => {
-                            if (err) {
-                                return reject(new Error("Error al guardar el archivo MP3: " + err.message));
-                            }
-                            resolve();
+            // Función para guardar el archivo de audio con reintentos
+            const saveAudioWithRetries = async (gttsInstance, filePath, retries = 3) => {
+                for (let attempt = 1; attempt <= retries; attempt++) {
+                    try {
+                        await new Promise((resolve, reject) => {
+                            gttsInstance.save(filePath, (err) => {
+                                if (err) return reject(new Error("Error al guardar el archivo MP3: " + err.message));
+                                resolve();
+                            });
                         });
-                    });
+                        return;
+                    } catch (error) {
+                        console.error(`Intento ${attempt} de guardar archivo fallido para: ${filePath}. Error: ${error.message}`);
+                        if (attempt === retries) throw error;
+                    }
+                }
+            };
 
-                    batchPromises.push(saveAudioPromise);
+            // Función para procesar en lotes de 50 archivos
+            const guardarAudioPorLotes = async (chunks, documentoNameCifrado, audioDir, batchSize = 50) => {
+                const audioFilePaths = [];
+
+                for (let batchStart = 0; batchStart < chunks.length; batchStart += batchSize) {
+                    const batchPromises = [];
+
+                    for (let index = batchStart; index < Math.min(batchStart + batchSize, chunks.length); index++) {
+                        const mp3FileName = documentoNameCifrado.replace(/\.pdf$/, `_${index + 1}.mp3`);
+                        const mp3FilePath = path.join(audioDir, mp3FileName);
+                        audioFilePaths.push(mp3FilePath);
+                        const gttsInstance = new gtts(chunks[index], 'es');
+
+                        const savePromise = saveAudioWithRetries(gttsInstance, mp3FilePath, 3);
+                        batchPromises.push(savePromise);
+                    }
+
+                    await Promise.all(batchPromises);
+                    console.log(`Lote de ${batchPromises.length} archivos completado.`);
                 }
 
-                await Promise.all(batchPromises);
-            }
+                return audioFilePaths;
+            };
+
+            const audioFilePaths = await guardarAudioPorLotes(chunks, documentoNameCifrado, audioDir);
+
             console.log(audioFilePaths);
 
-            // Concatenar los archivos MP3 en un solo archivo con ffmpeg
             const combinedAudioPath = path.join(__dirname, "../public/audio/completo", `${carpetaName}.mp3`);
             const fileListPath = path.join(__dirname, `../public/audio/partes/${carpetaName}_filelist.txt`);
-            
-            // Crear un archivo de texto que lista todos los archivos MP3 para la concatenación
             fs.writeFileSync(fileListPath, audioFilePaths.map(filePath => `file '${filePath}'`).join('\n'));
 
             await new Promise((resolve, reject) => {
@@ -93,6 +111,13 @@ class DocumentoController {
                 nombre: carpetaName
             };
             await transaction.commit();
+
+            if (fs.existsSync(audioDir)) {
+                fs.rmdirSync(audioDir, { recursive: true });
+                console.log(`Carpeta de audio eliminada: ${audioDir}`);
+            }
+            if (fs.existsSync(fileListPath)) fs.unlinkSync(fileListPath);
+
             return res.status(200).json({
                 msg: "SE HAN REGISTRADO LOS DATOS CON ÉXITO",
                 code: 200, info: respuesta
@@ -125,6 +150,82 @@ class DocumentoController {
             });
         }
     }
+    async obtener(req, res) {
+        try {
+
+            const externalId = req.params.external_id;
+            const documentos = await models.documento.findAll({
+                where: { id_entidad: externalId },
+                attributes: ['nombre', 'external_id','createdAt'],
+            });
+    
+            if (!documentos || documentos.length === 0) {
+                return res.status(404).json({
+                    msg: "No se encontraron documentos para la entidad especificada",
+                    code: 404
+                });
+            }
+    
+            return res.status(200).json({
+                msg: "Documentos obtenidos con éxito",
+                code: 200,
+                info: documentos
+            });
+        } catch (error) {
+            return res.status(500).json({
+                msg: "Error al obtener los documentos",
+                code: 500
+            });
+        }
+    }
+    async eliminar(req, res) {
+        const transaction = await models.sequelize.transaction();
+    
+        try {
+            const externalId = req.params.external_id;
+            const documento = await models.documento.findOne({
+                where: { external_id: externalId },
+                include: [{ model: models.audio, as: 'audio' }]
+            });
+    
+            if (!documento) {
+                return res.status(404).json({
+                    msg: "Documento no encontrado",
+                    code: 404
+                });
+            }
+    
+            const documentoNameCifrado = documento.nombre_cifrado;
+            const pdfPath = path.join(__dirname, '../public/documentos', `${documentoNameCifrado}.pdf`);
+            const txtPath = path.join(__dirname, '../public/documentos', `${documentoNameCifrado}.txt`);
+            const audioDir = path.join(__dirname, `../public/audio/partes/${documentoNameCifrado}`);
+            const combinedAudioPath = path.join(__dirname, "../public/audio/completo", `${documentoNameCifrado}.mp3`);
+    
+            await documento.destroy({ transaction });
+    
+            if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
+            if (fs.existsSync(txtPath)) fs.unlinkSync(txtPath);
+            if (fs.existsSync(audioDir)) fs.rmdirSync(audioDir, { recursive: true });
+            if (fs.existsSync(combinedAudioPath)) fs.unlinkSync(combinedAudioPath);
+    
+            await transaction.commit();
+    
+            return res.status(200).json({
+                msg: "Documento eliminado con éxito",
+                code: 200
+            });
+        } catch (error) {
+            if (transaction && !transaction.finished) {
+                await transaction.rollback();
+            }
+    
+            return res.status(500).json({
+                msg: "Error al eliminar el documento",
+                code: 500
+            });
+        }
+    }
+        
 }
 
 module.exports = DocumentoController;

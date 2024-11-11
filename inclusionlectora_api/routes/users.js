@@ -13,9 +13,9 @@ var entidadController = new EntidadController();
 const CuentaController = require('../controls/CuentaController');
 var cuentaController = new CuentaController();
 const RolEntidadController = require('../controls/RolEntidadController');
-const rolEntidadController = new RolEntidadController();
+var rolEntidadController = new RolEntidadController();
 const DocumentoController = require("../controls/DocumnetoController");
-const documentoController = new DocumentoController();
+var documentoController = new DocumentoController();
 
 
 /* GET users listing. */
@@ -164,7 +164,7 @@ router.post('/entidad/guardar', (req, res, next) => {
   });
 });
 
-router.post('/documento', (req, res, next) => {
+ router.post('/documento', (req, res, next) => {
   uploadDocumento.single('documento')(req, res, (error) => {
     if (error) {
       if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
@@ -181,6 +181,10 @@ router.post('/documento', (req, res, next) => {
     documentoController.guardar(req, res, next);
   });
 });
+
+
+router.get('/documento/:external_id', documentoController.obtener);
+router.delete('/documento/:external_id', documentoController.eliminar);
 
 router.put('/modificar/entidad', (req, res, next) => {
   uploadFotoPersona.single('foto')(req, res, (error) => {
