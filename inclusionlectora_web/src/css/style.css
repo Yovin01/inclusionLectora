@@ -1,6 +1,6 @@
 :root {
   /* Paleta de colores */
-  --color-primario: #F4EEFF;
+  --color-primario: #ffffff;
   --color-secundario: #DCD6F7;
   --color-terciario: #A6B1E1;
   --color-cuarto: #04344c;
@@ -23,12 +23,20 @@
 }
 
 .titulo-primario {
-  color: var(--verde-claro);
+  color: var(--verde-claro) !important;
   font-size: 30px;
   font-weight: bold;
   padding-left: 10px;
   position: relative;
 }
+.titulo-primario h2{
+  color: var(--verde-claro) !important;
+  font-size: 30px;
+  font-weight: bold;
+  padding-left: 10px;
+  position: relative;
+}
+
 
 .titulo-primario::before {
   content: '';
@@ -67,12 +75,12 @@ label{
 
 /*Contenedor*/
 .contenedor-centro {
-  display: flex; justify-content: center; margin: 70px 70px 0;
+  display: flex; justify-content: center; margin: 100px 40px 0;
 }
 
 .contenedor-carta {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
-  background-color: transparent; border-radius: 10px; padding: 25px; width: 100%;
+  background-color: transparent; padding: 25px; width: 100%;
 }
 
 .contenedor-filo {
@@ -105,7 +113,10 @@ label{
 }
 
 .btn-positivo {
-  background-color: var(--color-positivo);
+  background-color: var(--verde-claro) !important; 
+}
+.btn-positivoazul {
+  background-color: var(--azul-intermedio) !important; 
 }
 
 .btn-positivo:hover {
@@ -319,7 +330,7 @@ display: grid;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-margin: 0 auto;	
+margin: 200 auto;	
 }
 .texto-cargando{ 
 padding-top:20px
@@ -328,20 +339,7 @@ padding-top:20px
   font-size: 20px;
   text-transform: uppercase;
 }
-.pelotas {
-  width: 30px;
-  height: 30px;
-  background-color: var(--color-cuarto);
-  animation: salto .5s alternate
-  infinite;
-border-radius: 50%	
-}
-.pelotas:nth-child(2) {
-  animation-delay: .18s;
-}
-.pelotas:nth-child(3) {
-  animation-delay: .37s;
-}
+
 @keyframes salto {
   from {
       transform: scaleX(1.25);
@@ -351,3 +349,61 @@ border-radius: 50%
       translateY(-50px) scaleX(1);
   }
 }
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.content-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  width: 100%;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.audio-section, .file-upload-section {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px;
+}
+
+.audio-card, .file-upload-card, .pdf-preview-card {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+}
+
+.card-header h2 {
+  font-size: 1.5em;
+  color: #333;
+}
+
+.audio-container {
+  margin: 16px 0;
+}
+
+.audio-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
+

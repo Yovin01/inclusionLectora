@@ -76,34 +76,34 @@ const Principal = () => {
             <main className="contenedor-centro">
                 {loading ? (
                     <section className="contenedor-carta">
-                        <aside className="cargando">
+                        <div className="loading">
                             <div className="pelotas"></div>
                             <div className="pelotas"></div>
                             <div className="pelotas"></div>
-                            <span className="texto-cargando">Cargando...</span>
-                        </aside>
+                            <span className="loading-text">Cargando...</span>
+                        </div>
                     </section>
                 ) : (
-                    <section className="contenedor-carta">
-
-                        <article className="col-md-6">
+                    <section className="content-container">
+                        
                             {audioComplete && (
-                                <div className="card mb-3">
-                                    <header className="titulo-primario ">
-                                        <h2>Reproducción de Audio Completo</h2>
+                                       <div className="audio-section">
+                                <div className="card audio-card">
+                                    <header className="titulo-primario">
+                                        <h2>Reproducción de Audio</h2>
                                     </header>
                                     <div className="card-body">
                                         <div className="audio-container">
                                             <audio ref={audioRef} src={audioComplete} controls />
                                         </div>
-                                        <nav className="audio-navigation">
-                                            <button onClick={() => skipTime(-10)}>-10 segundos</button>
-                                            <button onClick={togglePlayPause}>
+                                        <div className="audio-controls">
+                                            <button className='btn-positivoazul text-white' onClick={() => skipTime(-10)}>-10 segundos</button>
+                                            <button  className='btn-positivoazul text-white' onClick={togglePlayPause}>
                                                 {isPlaying ? "Pausa" : "Play"}
                                             </button>
-                                            <button onClick={() => skipTime(10)}>+10 segundos</button>
+                                            <button  className='btn-positivoazul text-white' onClick={() => skipTime(10)}>+10 segundos</button>
                                             <label htmlFor="playbackRate">Velocidad:</label>
-                                            <select id="playbackRate" onChange={changePlaybackRate} value={playbackRate}>
+                                            <select className='btn-positivoazul text-white' id="playbackRate" onChange={changePlaybackRate} value={playbackRate}>
                                                 <option value="0.25">x0.25</option>
                                                 <option value="0.5">x0.50</option>
                                                 <option value="0.75">x0.75</option>
@@ -113,32 +113,31 @@ const Principal = () => {
                                                 <option value="1.75">x1.75</option>
                                                 <option value="2">x2</option>
                                             </select>
-                                        </nav>
+                                        </div>
                                     </div>
                                 </div>
+                                </div>
                             )}
-                        </article>
-                        <article className="col-md-6">
+                     
+                       
                             {!audioComplete && (
-                                <div className="card mb-3">
-                                    <header className="titulo-primario ">
-                                        <h2>Arrastra o carga tu documento PDF</h2>
+                                 <div className="file-upload-section">
+                                <div className="contenedor-carta">
+                                    <header className="titulo-primario">
+                                        <h2>Carga tu documento PDF</h2>
                                     </header>
                                     <div className="card-body">
                                         <input type="file" onChange={handleFileChange} accept=".pdf" />
-                                        <button
-                                            className="btn btn-primary save-button"
-                                            onClick={handleSave}
-                                            disabled={!file}
-                                        >
-                                            Guardar
+                                        <button className="btn-positivo text-white" type="submit" onClick={handleSave} disabled={!file}>
+                                            EXTRAER
                                         </button>
                                     </div>
                                 </div>
+                                </div>
                             )}
-                            {fileURL && (
-                                <div className="card mb-3">
-                                    <header className="titulo-primario ">
+                        {fileURL && (
+                                <div className="contenedor-carta">
+                                    <header className="titulo-primario">
                                         <h2>Vista previa del PDF</h2>
                                     </header>
                                     <div className="card-body">
@@ -151,7 +150,6 @@ const Principal = () => {
                                     </div>
                                 </div>
                             )}
-                        </article>
                     </section>
                 )}
             </main>
