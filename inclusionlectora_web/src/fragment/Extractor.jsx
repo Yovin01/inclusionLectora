@@ -1,24 +1,36 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../css/style.css';
 import { GuardarArchivos, URLBASE } from '../utilities/hooks/Conexion';
 import { getToken, getUser } from '../utilities/Sessionutil';
 import mensajes from '../utilities/Mensajes';
 import MenuBar from './MenuBar';
+import { useParams } from 'react-router-dom';
 
-const Principal = () => {
+const Extractor = () => {
+    const { external_id } = useParams();
     const [file, setFile] = useState(null);
     const [fileURL, setFileURL] = useState(null); // URL para visualizar el PDF
     const [loading, setLoading] = useState(false);
     const [audioComplete, setAudioComplete] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [playbackRate, setPlaybackRate] = useState(1);
+    const [showPdf, setShowPdf] = useState(false); // Estado para controlar la visualización del PDF
     const audioRef = useRef(null);
+
+    useEffect(() => {
+        // Si external_id no es "new", intenta cargar el audio correspondiente
+        if (external_id && external_id !== "new") {
+            setAudioComplete(`${URLBASE}audio/completo/${external_id}.mp3`);
+            setFileURL(`${URLBASE}documentos/${external_id}.pdf`);
+        }
+    }, [external_id]);
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         setFile(selectedFile);
         const pdfURL = URL.createObjectURL(selectedFile);
         setFileURL(pdfURL);
+        setShowPdf(false); // Oculta el PDF hasta que se haga clic en "Ver PDF"
     };
 
     const handleSave = () => {
@@ -85,9 +97,8 @@ const Principal = () => {
                     </section>
                 ) : (
                     <section className="content-container">
-                        
-                            {audioComplete && (
-                                       <div className="audio-section">
+                        {audioComplete && (
+                            <div className="audio-section">
                                 <div className="card audio-card">
                                     <header className="titulo-primario">
                                         <h2>Reproducción de Audio</h2>
@@ -97,31 +108,36 @@ const Principal = () => {
                                             <audio ref={audioRef} src={audioComplete} controls />
                                         </div>
                                         <div className="audio-controls">
-                                            <button className='btn-positivoazul text-white' onClick={() => skipTime(-10)}>-10 segundos</button>
-                                            <button  className='btn-positivoazul text-white' onClick={togglePlayPause}>
+                                            <button className="btn-positivoazul text-white" onClick={() => skipTime(-10)}>
+                                                -10 segundos
+                                            </button>
+                                            <button className="btn-positivoazul text-white" onClick={togglePlayPause}>
                                                 {isPlaying ? "Pausa" : "Play"}
                                             </button>
-                                            <button  className='btn-positivoazul text-white' onClick={() => skipTime(10)}>+10 segundos</button>
-                                            <label htmlFor="playbackRate">Velocidad:</label>
-                                            <select className='btn-positivoazul text-white' id="playbackRate" onChange={changePlaybackRate} value={playbackRate}>
-                                                <option value="0.25">x0.25</option>
-                                                <option value="0.5">x0.50</option>
-                                                <option value="0.75">x0.75</option>
-                                                <option value="1">Normal</option>
-                                                <option value="1.25">x1.25</option>
-                                                <option value="1.5">x1.50</option>
-                                                <option value="1.75">x1.75</option>
-                                                <option value="2">x2</option>
-                                            </select>
+                                            <button className="btn-positivoazul text-white" onClick={() => skipTime(10)}>
+                                                +10 segundos
+                                            </button>
+                                            <div className="playback-rate">
+                                                <label htmlFor="playbackRate">Velocidad:</label>
+                                                <select className="btn-positivoazul text-white" id="playbackRate" onChange={changePlaybackRate} value={playbackRate}>
+                                                    <option value="0.25">x0.25</option>
+                                                    <option value="0.5">x0.50</option>
+                                                    <option value="0.75">x0.75</option>
+                                                    <option value="1">Normal</option>
+                                                    <option value="1.25">x1.25</option>
+                                                    <option value="1.5">x1.50</option>
+                                                    <option value="1.75">x1.75</option>
+                                                    <option value="2">x2</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                </div>
-                            )}
-                     
-                       
-                            {!audioComplete && (
-                                 <div className="file-upload-section">
+                            </div>
+                        )}
+
+                        {!audioComplete && (
+                            <div className="file-upload-section">
                                 <div className="contenedor-carta">
                                     <header className="titulo-primario">
                                         <h2>Carga tu documento PDF</h2>
@@ -131,25 +147,32 @@ const Principal = () => {
                                         <button className="btn-positivo text-white" type="submit" onClick={handleSave} disabled={!file}>
                                             EXTRAER
                                         </button>
+                                       
                                     </div>
                                 </div>
+                            </div>
+                        )}
+                         {fileURL && (
+                                            <button className="btn-positivo text-white" onClick={() => setShowPdf(!showPdf)}>
+                                                {showPdf ? "Ocultar PDF" : "Ver PDF"}
+                                            </button>
+                                        )}
+
+                        {showPdf && fileURL && (
+                            <div className="contenedor-carta">
+                                <header className="titulo-primario">
+                                    <h2>Vista previa del PDF</h2>
+                                </header>
+                                <div className="card-body">
+                                    <iframe
+                                        src={fileURL}
+                                        title="Vista previa del PDF"
+                                        width="100%"
+                                        height="500px"
+                                    ></iframe>
                                 </div>
-                            )}
-                        {fileURL && (
-                                <div className="contenedor-carta">
-                                    <header className="titulo-primario">
-                                        <h2>Vista previa del PDF</h2>
-                                    </header>
-                                    <div className="card-body">
-                                        <iframe
-                                            src={fileURL}
-                                            title="Vista previa del PDF"
-                                            width="100%"
-                                            height="500px"
-                                        ></iframe>
-                                    </div>
-                                </div>
-                            )}
+                            </div>
+                        )}
                     </section>
                 )}
             </main>
@@ -157,4 +180,4 @@ const Principal = () => {
     );
 };
 
-export default Principal;
+export default Extractor;

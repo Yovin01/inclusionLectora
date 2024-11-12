@@ -36,8 +36,8 @@ const MenuBar = () => {
                     <Nav className="me-auto">
                         {token && (
                             <>
-                                <Nav.Link href="/dashboard" className="text-white">Extraer PDF</Nav.Link>
-                                <Nav.Link href="/repositorio" className="text-white">Documentos Guardados</Nav.Link>
+                                <Nav.Link href="/extraer/new" className="text-white">Extraer PDF</Nav.Link>
+                                <Nav.Link href="/dashboard" className="text-white">Documentos</Nav.Link>
                                 <Nav.Link href="/contactanos" className="text-white">Información</Nav.Link>
                             </>
                         )}

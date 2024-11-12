@@ -96,8 +96,7 @@ class DocumentoController {
             const data = {
                 id_entidad: req.body.id,
                 nombre: req.body.nombre,
-                nombre_cifrado: carpetaName,
-                external_id: uuid.v4(),
+                external_id: carpetaName,
                 audio: {
                     tiempo_reproduccion: '0:00'
                 },
@@ -161,7 +160,7 @@ class DocumentoController {
     
             if (!documentos || documentos.length === 0) {
                 return res.status(404).json({
-                    msg: "No se encontraron documentos para la entidad especificada",
+                    msg: "No se encontraron documentos",
                     code: 404
                 });
             }

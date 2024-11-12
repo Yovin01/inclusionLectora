@@ -9,6 +9,9 @@ package-lock.json
 
 # testing
 /coverage
+# carpetas public
+/public/audio
+/public/documentos
 
 # production
 /build

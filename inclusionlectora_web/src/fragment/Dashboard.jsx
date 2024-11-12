@@ -10,10 +10,9 @@ import MenuBar from './MenuBar';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-    const navegation = useNavigate();
+    const navigate = useNavigate();
     const [documentos, setDocumentos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showUploadModal, setShowUploadModal] = useState(false);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(true);
@@ -61,21 +60,8 @@ const Dashboard = () => {
         documento.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
-
     const handleShowUploadModal = () => {
-        navegation("/extraer");
-    };
-
-    const handleCloseUploadModal = () => {
-        setShowUploadModal(false);
+        navigate("/extraer/new");
     };
 
     useEffect(() => {
@@ -83,79 +69,83 @@ const Dashboard = () => {
     }, []);
 
     return (
-<div>
-        <header>
-        <MenuBar />
-    </header>
-        <div className='container-fluid'>
-            <div className='contenedor-centro'>
-                <div className='contenedor-carta'>
-                    <div className='contenedor-filo'>
-                    <Button className='btn-normal mb-3' onClick={handleShowUploadModal}>
-                        <FontAwesomeIcon icon={faPlus} /> Cargar documento
-                    </Button>
+        <div>
+            <header>
+                <MenuBar />
+            </header>
+            <div className='container-fluid'>
+                <div className='contenedor-centro'>
+                    <div className='contenedor-carta'>
+                        <div className='contenedor-filo'>
+                            <Button className='btn-normal mb-3' onClick={handleShowUploadModal}>
+                                <FontAwesomeIcon icon={faPlus} /> Cargar documento
+                            </Button>
+                        </div>
+                        <p className='titulo-primario'>Lista de Documentos</p>
+
+                        <InputGroup className='mb-3'>
+                            <InputGroup.Text>
+                                <FontAwesomeIcon icon={faSearch} />
+                            </InputGroup.Text>
+                            <FormControl
+                                placeholder='Buscar por: Título'
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                            />
+                        </InputGroup>
+
+                        <div className='table-responsive'>
+                            <table className='table table-striped'>
+                                <thead>
+                                    <tr>
+                                        <th className='text-center'>Título</th>
+                                        <th className='text-center'>Fecha</th>
+                                        <th className='text-center'>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredDocumentos.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="3" className="text-center">No hay documentos disponibles.</td>
+                                        </tr>
+                                    ) : (
+                                        filteredDocumentos
+                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                            .map((documento) => (
+                                                <tr key={documento.external_id}>
+                                                    <td>
+                                                        <Button 
+                                                            variant="link" 
+                                                            onClick={() => navigate(`/extraer/${documento.external_id}`)}
+                                                        >
+                                                            {documento.nombre}
+                                                        </Button>
+                                                    </td>
+                                                    <td className="text-center">
+                                                        {new Date(documento.createdAt).toLocaleDateString('es-ES', {
+                                                            year: 'numeric',
+                                                            month: 'long',
+                                                            day: 'numeric',
+                                                        })}
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <Button
+                                                            variant="btn btn-outline-danger btn-rounded"
+                                                            onClick={() => eliminarDocumento(documento.external_id)}
+                                                            className="btn-icon"
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrash} /> Eliminar
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <p className='titulo-primario'>Lista de Documentos</p>
-
-                    <InputGroup className='mb-3'>
-                        <InputGroup.Text>
-                            <FontAwesomeIcon icon={faSearch} />
-                        </InputGroup.Text>
-                        <FormControl
-                            placeholder='Buscar por: Título'
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                        />
-                    </InputGroup>
-
-                    <div className='table-responsive'>
-                        <table className='table table-striped'>
-                            <thead>
-                                <tr>
-                                    <th className='text-center'>Título</th>
-                                    <th className='text-center'>Fecha</th>
-                                    <th className='text-center'>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-    {filteredDocumentos.length === 0 ? (
-        <tr>
-            <td colSpan="3" className="text-center">No hay documentos disponibles.</td>
-        </tr>
-    ) : (
-        filteredDocumentos
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((documento) => (
-                <tr key={documento.external_id}>
-                    <td>{documento.nombre}</td>
-                    <td className="text-center">
-                        {new Date(documento.createdAt).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                        })}
-                    </td>
-                    <td className="text-center">
-                        <Button
-                            variant="btn btn-outline-danger btn-rounded"
-                            onClick={() => eliminarDocumento(documento.external_id)}
-                            className="btn-icon"
-                        >
-                            <FontAwesomeIcon icon={faTrash} /> Eliminar
-                        </Button>
-                    </td>
-                </tr>
-            ))
-    )}
-</tbody>
-
-                        </table>
-                    </div>
-
-              
                 </div>
             </div>
-        </div>
         </div>
     );
 };
