@@ -210,7 +210,6 @@ router.get('/obtener/entidad/:external',  entidadController.obtener);
 router.get('/cuenta/:nombreCompleto',cuentaController.obtenerCuenta);
 
 
-
 /** ROL_ENTIDAD */
 router.get('/rol/entidad/listar', rolEntidadController.listar);
 router.post('/asignar/lideres', rolEntidadController.asignarLideres);

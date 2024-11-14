@@ -27,12 +27,12 @@ const MenuBar = () => {
 
     return (
         <Navbar bg="dark" variant="dark" expand="lg" className="navbar">
-            <Container fluid className="navbar-custom-container">
-                <Navbar.Brand href="#">
-                    <img src={logoWhite} alt="Universidad Nacional de Loja" className="img-fluid me-2 header-logo" style={{ width: '200px' }} />
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="navbarNav" />
-                <Navbar.Collapse id="navbarNav">
+        <Container fluid className="navbar-custom-container">
+          <Navbar.Brand href="#">
+            <img src={logoWhite} alt="Universidad Nacional de Loja" className="img-fluid me-2 header-logo" style={{ width: '200px' }} />
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="navbarNav" />
+          <Navbar.Collapse id="navbarNav">
                     <Nav className="me-auto">
                         {token && (
                             <>

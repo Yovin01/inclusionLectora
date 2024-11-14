@@ -110,7 +110,7 @@ const Dashboard = () => {
                                         </tr>
                                     ) : (
                                         filteredDocumentos
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                           
                                             .map((documento) => (
                                                 <tr key={documento.external_id}>
                                                     <td>

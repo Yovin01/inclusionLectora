@@ -87,7 +87,7 @@ const Extractor = () => {
             </header>
             <main className="contenedor-centro">
                 {loading ? (
-                    <section className="contenedor-carta">
+                    <section className="cart">
                         <div className="loading">
                             <div className="pelotas"></div>
                             <div className="pelotas"></div>
@@ -96,7 +96,7 @@ const Extractor = () => {
                         </div>
                     </section>
                 ) : (
-                    <section className="content-container">
+                    <section className="contenedor-carta-columna">
                         {audioComplete && (
                             <div className="audio-section">
                                 <div className="card audio-card">
@@ -104,9 +104,10 @@ const Extractor = () => {
                                         <h2>Reproducción de Audio</h2>
                                     </header>
                                     <div className="card-body">
-                                        <div className="audio-container">
-                                            <audio ref={audioRef} src={audioComplete} controls />
-                                        </div>
+                                    <div className="audio-container">
+    <audio ref={audioRef} src={audioComplete} controls style={{ width: '70%' }} />
+</div>
+
                                         <div className="audio-controls">
                                             <button className="btn-positivoazul text-white" onClick={() => skipTime(-10)}>
                                                 -10 segundos
@@ -137,8 +138,8 @@ const Extractor = () => {
                         )}
 
                         {!audioComplete && (
-                            <div className="file-upload-section">
-                                <div className="contenedor-carta">
+                            <div className="file-upload-card">
+                               
                                     <header className="titulo-primario">
                                         <h2>Carga tu documento PDF</h2>
                                     </header>
@@ -149,12 +150,12 @@ const Extractor = () => {
                                         </button>
                                        
                                     </div>
-                                </div>
+                                
                             </div>
                         )}
                          {fileURL && (
                                             <button className="btn-positivo text-white" onClick={() => setShowPdf(!showPdf)}>
-                                                {showPdf ? "Ocultar PDF" : "Ver PDF"}
+                                                {showPdf ? "OCULTAR PDF" : "VER PDF"}
                                             </button>
                                         )}
 

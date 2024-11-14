@@ -1,132 +1,262 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../css/Registro_Style.css';
+import '../css/Login_Style.css';
 import '../css/style.css';
-import { GuardarArchivos, URLBASE } from '../utilities/hooks/Conexion';
-import { getToken, getUser } from '../utilities/Sessionutil';
+import { GuardarArchivos } from '../utilities/hooks/Conexion';
+import { useNavigate } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { borrarSesion, getToken } from '../utilities/Sessionutil';
 import mensajes from '../utilities/Mensajes';
+import swal from 'sweetalert';
 
-const Principal = () => {
-    const [file, setFile] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [audioParts, setAudioParts] = useState([]);
-    const [currentPartIndex, setCurrentPartIndex] = useState(0);
-    const audioRef = useRef(null);
+const Registrar = () => {
+    const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordMatch, setPasswordMatch] = useState(null);
 
-    const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
-        setFile(selectedFile);
-    };
-
-    const handleSave = () => {
-        if (!file) {
-            mensajes("No se ha seleccionado un archivo", 'error', 'Error');
-            return;
-        }
-
-        setLoading(true);
-        const formData = new FormData();
-        formData.append('nombre', file.name);
-        formData.append('documento', file);
-        formData.append('id', getUser().user.id);
-
-        GuardarArchivos(formData, getToken(), "/documento").then(info => {
-            if (info.code !== 200) {
-                mensajes(info.msg, 'error', 'Error');
-                setLoading(false);
-            } else {
-                const audioUrls = Array.from({ length: info.info.partes }, (_, index) => 
-                    `${URLBASE}audio/partes/${info.info.nombre}/${info.info.nombre}_${index + 1}.mp3`
-                );
-                setAudioParts(audioUrls);
-                setLoading(false);
-                mensajes("Documento guardado con éxito");
-            }
-        }).catch(error => {
-            console.error('Error al guardar el documento:', error);
-            mensajes("Error al guardar el documento", 'error', 'Error');
-            setLoading(false);
-        });
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     useEffect(() => {
-        if (audioParts.length > 0 && audioRef.current) {
-            audioRef.current.src = audioParts[currentPartIndex];
-            audioRef.current.play();
-        }
-    }, [audioParts, currentPartIndex]);
+        setPasswordMatch(confirmPassword === watch('clave'));
+    }, [confirmPassword, watch('clave')]);
 
-    const handleAudioEnd = () => {
-        if (currentPartIndex < audioParts.length - 1) {
-            setCurrentPartIndex((prevIndex) => prevIndex + 1);
+    const onSubmit = data => {
+        if (!passwordMatch) {
+            mensajes('Las contraseñas no coinciden', 'error', 'Error');
+            return;
         }
+        const formData = new FormData();
+        formData.append('nombres', data.nombres.toUpperCase());
+        formData.append('apellidos', data.apellidos.toUpperCase());
+        formData.append('correo', data.correo);
+        formData.append('fecha_nacimiento', data.fecha_nacimiento);
+        formData.append('telefono', data.telefono);
+        formData.append('clave', data.clave);
+        if (data.foto && data.foto.length > 0) {
+            formData.append('foto', data.foto[0]);
+        } else {
+            const defaultPhotoUrl = `${process.env.PUBLIC_URL}/img/USUARIO_ICONO.png`;
+            formData.append('foto', defaultPhotoUrl);
+        }
+
+        GuardarArchivos(formData, getToken(), "/entidad/guardar").then(info => {
+            if (info.code !== 200) {
+                mensajes(info.msg, 'error', 'Error');
+                borrarSesion();
+                navigate('/login');
+            } else {
+                mensajes(info.msg);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+            }
+        });
     };
 
-    const goToPreviousPart = () => {
-        if (currentPartIndex > 0) {
-            setCurrentPartIndex((prevIndex) => prevIndex - 1);
-        }
-    };
-
-    const goToNextPart = () => {
-        if (currentPartIndex < audioParts.length - 1) {
-            setCurrentPartIndex((prevIndex) => prevIndex + 1);
-        }
+    const handleCancelClick = () => {
+        swal({
+            title: "¿Está seguro de cancelar el registro?",
+            text: "Una vez cancelado, no podrá revertir esta acción",
+            icon: "warning",
+            buttons: ["No", "Sí"],
+            dangerMode: true,
+        }).then((willCancel) => {
+            if (willCancel) {
+                mensajes("Registro cancelado", "info", "Información");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+            }
+        });
     };
 
     return (
-        <div className="container-fluid principal-container">
-            {loading ? (
-                <div className="loading-screen">
-                    <p>Cargando, por favor espera...</p>
+        <div className="container-fluid d-flex justify-content-center align-items-center vh-100 fondo-principal">
+            <div className="register-container">
+                <div className="text-center mb-4" >
+                    <img src="/logo192.png" alt="Inclusión lectora" style={{ width: '150px' }} />
                 </div>
-            ) : (
-                <div className="row justify-content-center align-items-start min-vh-100">
+                <h2 className="text-center mb-4 titulo-primario">Inclusión Lectora</h2>
+                <form className="row g-3 p-2" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
                     <div className="col-md-6">
-                        {!audioParts.length && (
-                            <div className="card mb-3">
-                                <div className="card-body">
-                                    <h2>Arrastra o carga tu documento PDF</h2>
-                                    <input type="file" onChange={handleFileChange} accept=".pdf" />
-                                    <button
-                                        className="btn btn-primary save-button"
-                                        onClick={handleSave}
-                                        disabled={!file}
-                                    >
-                                        Guardar
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        <label htmlFor="nombres" className="form-label">Ingrese sus nombres</label>
+                        <input
+                            type="text"
+                            {...register("nombres", {
+                                required: {
+                                    value: true,
+                                    message: "Ingrese sus nombres"
+                                },
+                                pattern: {
+                                    value: /^(?!\s*$)[a-zA-Z\s]+$/,
+                                    message: "Ingrese un nombre correcto"
+                                }
+                            })}
+                            className="form-control"
+                        />
+                        {errors.nombres && <span className='mensajeerror'>{errors.nombres.message}</span>}
                     </div>
 
                     <div className="col-md-6">
-                        {audioParts.length > 0 && (
-                            <div className="card mb-3">
-                                <div className="card-body">
-                                    <h2>Reproducción de Audio</h2>
-                                    <div className="audio-container">
-                                        <audio
-                                            ref={audioRef}
-                                            controls
-                                            onEnded={handleAudioEnd}
-                                        />
-                                    </div>
-                                    <div className="audio-navigation">
-                                        <button onClick={goToPreviousPart} disabled={currentPartIndex === 0}>
-                                            Anterior
-                                        </button>
-                                        <span>{`Parte ${currentPartIndex + 1} de ${audioParts.length}`}</span>
-                                        <button onClick={goToNextPart} disabled={currentPartIndex === audioParts.length - 1}>
-                                            Siguiente
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                        <label htmlFor="apellidos" className="form-label">Ingrese sus apellidos</label>
+                        <input
+                            type="text"
+                            {...register("apellidos", {
+                                required: {
+                                    value: true,
+                                    message: "Ingrese sus apellidos"
+                                },
+                                pattern: {
+                                    value: /^(?!\s*$)[a-zA-Z\s]+$/,
+                                    message: "Ingrese un apellido correcto"
+                                }
+                            })}
+                            className="form-control"
+                        />
+                        {errors.apellidos && <span className='mensajeerror'>{errors.apellidos.message}</span>}
+                    </div>
+
+                    <div className="col-md-6">
+                        <label htmlFor="fecha_nacimiento" className="form-label">Ingrese su fecha de nacimiento</label>
+                        <input type="date"
+                            {...register("fecha_nacimiento", {
+                                required: {
+                                    value: true,
+                                    message: "Ingrese su fecha de nacimiento"
+                                },
+                                validate: (value) => {
+                                    const fechaNacimiento = new Date(value);
+                                    const fechaActual = new Date();
+                                    const edad =
+                                        fechaActual.getFullYear() - fechaNacimiento.getFullYear();
+                                    return edad >= 16 || "Debe ser mayor de 16 años"
+                                }
+                            })}
+                            className="form-control"
+                        />
+                        {errors.fecha_nacimiento && <span className='mensajeerror'>{errors.fecha_nacimiento.message}</span>}
+                    </div>
+
+                    <div className="col-md-6">
+                        <label htmlFor="telefono" className="form-label">Ingrese su telefono</label>
+                        <input type="text"
+                            {...register("telefono", {
+                                required: {
+                                    value: true,
+                                    message: "Ingrese su telefono"
+                                },
+                                pattern: {
+                                    value: /^[0-9]+$/,
+                                    message: "Ingrese su telefono correctamente"
+                                },
+                                minLength: {
+                                    value: 5,
+                                    message: "El teléfono debe tener mínimo 5 caracteres"
+                                },
+                                maxLength: {
+                                    value: 10,
+                                    message: "El teléfono debe tener máximo 10 caracteres"
+                                }
+                            })}
+                            className="form-control"
+                        />
+                        {errors.telefono && <span className='mensajeerror'>{errors.telefono.message}</span>}
+                    </div>
+
+                    <div className="col-md-6">
+                        <label htmlFor="correo" className="form-label">Ingrese su correo electrónico</label>
+                        <input type="email"
+                            {...register("correo", {
+                                required: {
+                                    value: true,
+                                    message: "Ingrese un correo"
+                                },
+                                pattern: {
+                                    value: /^[a-zA-Z0-9._%+-]+@unl\.edu\.ec$/,
+                                    message: "Ingrese un correo válido institucional UNL (@unl.edu.ec)"
+                                }
+                            })}
+                            className="form-control"
+                        />
+                        {errors.correo && <span className='mensajeerror'>{errors.correo.message}</span>}
+                    </div>
+
+                    <div className="col-md-6">
+                        <label htmlFor="clave" className="form-label">Ingrese su clave</label>
+                        <div className="input-group">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                {...register("clave", {
+                                    required: {
+                                        value: true,
+                                        message: "Ingrese una clave"
+                                    },
+                                    minLength: {
+                                        value: 5,
+                                        message: "La contraseña debe tener al menos 5 caracteres"
+                                    },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
+                                        message: "La clave debe contener al menos una letra y un número"
+                                    }
+                                })}
+                                className="form-control"
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={togglePasswordVisibility}
+                            >
+                                {showPassword ? '👁️' : '👁️‍🗨️'}
+                            </button>
+                        </div>
+                        {errors.clave && <span className='mensajeerror'>{errors.clave.message}</span>}
+                    </div>
+
+                    <div className="col-md-6">
+                        <label htmlFor="foto" className="form-label">Seleccionar foto</label>
+                        <input type="file"
+                            {...register("foto", {
+                                required: {
+                                    message: "Seleccione una foto"
+                                }
+                            })}
+                            className="form-control"
+                        />
+                        {errors.foto && <span className='mensajeerror'>{errors.foto.message}</span>}
+                    </div>
+                    <div className="col-md-6">
+                        <label htmlFor="confirmPassword" className="form-label">Confirme su clave</label>
+                        <div className="input-group">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="form-control"
+                            />
+                            <span className="input-group-text">
+                                {passwordMatch === null ? '' : passwordMatch ? '✔️' : '❌'}
+                            </span>
+                        </div>
+                        {confirmPassword && !passwordMatch && (
+                            <span className='mensajeerror'>Las claves no coinciden</span>
                         )}
                     </div>
-                </div>
-            )}
+
+
+                    <div className="contenedor-filo">
+                        <button type="button" onClick={handleCancelClick} className="btn-negativo">Cancelar</button>
+                        <button type="submit" className="btn-positivo">Guardar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };
 
-export default Principal;
+export default Registrar;

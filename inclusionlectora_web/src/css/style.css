@@ -42,7 +42,6 @@
   content: '';
   position: absolute;
   top: 0; left: 0; bottom: 0; width: 5px;
-  background: linear-gradient(to bottom, var(--color-cuarto), var(--color-terciario), var(--color-secundario));
   z-index: -1;
 }
 
@@ -78,9 +77,14 @@ label{
   display: flex; justify-content: center; margin: 100px 40px 0;
 }
 
-.contenedor-carta {
+.contenedor-carta, .contenedor-carta-columna {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
   background-color: transparent; padding: 25px; width: 100%;
+}
+.contenedor-carta-columna{
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
 }
 
 .contenedor-filo {
@@ -95,7 +99,7 @@ label{
 }
 
 /* Botones */
-.btn-normal, .btn-positivo, .btn-negativo ,.btn-desactivado{
+.btn-normal, .btn-positivo, .btn-negativo ,.btn-desactivado,.btn-positivoazul{
   background-color: var(--color-cuarto);
   color: var(--color-primario);
   border: none; 
@@ -117,6 +121,9 @@ label{
 }
 .btn-positivoazul {
   background-color: var(--azul-intermedio) !important; 
+}
+.btn-positivoazul:hover {
+  background-color: var(--azul-oscuro) !important; 
 }
 
 .btn-positivo:hover {
@@ -217,7 +224,6 @@ label{
 /* Navbar superior */
 .navbar {
   background-color: var(--color-cuarto) !important;
-  position: fixed;
   width: 100%;
   left: 0;
   top: 0;
@@ -311,12 +317,7 @@ label{
   text-align: center;
 }
 
-body{
-  font-family: 'Montserrat', sans-serif;
-font-weight: 800;
-  background-color: var( --color-primario);
-  color:var(--color-cuarto);
-}
+
 /* ======================== */
 .container{ 	
 display: grid;
@@ -365,16 +366,8 @@ padding-top:20px
   width: 100%;
 }
 
-.centered {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .audio-section, .file-upload-section {
   width: 100%;
-  max-width: 600px;
-  margin: 20px;
 }
 
 .audio-card, .file-upload-card, .pdf-preview-card {

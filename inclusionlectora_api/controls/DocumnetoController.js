@@ -9,7 +9,7 @@ const models = require('../models');
 class DocumentoController {
     async guardar(req, res) {
         const transaction = await models.sequelize.transaction();
-
+    
         try {
             const documentoNameCifrado = req.file.filename;
             const pdfFilePath = path.join(__dirname, '../public/documentos', documentoNameCifrado);
@@ -20,17 +20,23 @@ class DocumentoController {
             const carpetaName = documentoNameCifrado.replace(/\.pdf$/, '');
             const txtFilePath = path.join(__dirname, '../public/documentos', txtFileName);
             fs.writeFileSync(txtFilePath, textoPlano);
-
+    
             const audioDir = path.join(__dirname, `../public/audio/partes/${carpetaName}`);
+    
+            // Recorta el nombre si tiene más de 80 caracteres
+            if (req.body.nombre.length > 80) {
+                req.body.nombre = req.body.nombre.substring(0, 76) + ".pdf";
+            }
+    
             if (!fs.existsSync(audioDir)) {
                 fs.mkdirSync(audioDir, { recursive: true });
             }
-
+    
             const chunks = [];
             for (let i = 0; i < textoPlano.length; i += 4000) {
                 chunks.push(textoPlano.substring(i, i + 4000));
             }
-
+    
             // Función para guardar el archivo de audio con reintentos
             const saveAudioWithRetries = async (gttsInstance, filePath, retries = 3) => {
                 for (let attempt = 1; attempt <= retries; attempt++) {
@@ -48,39 +54,39 @@ class DocumentoController {
                     }
                 }
             };
-
+    
             // Función para procesar en lotes de 50 archivos
             const guardarAudioPorLotes = async (chunks, documentoNameCifrado, audioDir, batchSize = 50) => {
                 const audioFilePaths = [];
-
+    
                 for (let batchStart = 0; batchStart < chunks.length; batchStart += batchSize) {
                     const batchPromises = [];
-
+    
                     for (let index = batchStart; index < Math.min(batchStart + batchSize, chunks.length); index++) {
                         const mp3FileName = documentoNameCifrado.replace(/\.pdf$/, `_${index + 1}.mp3`);
                         const mp3FilePath = path.join(audioDir, mp3FileName);
                         audioFilePaths.push(mp3FilePath);
                         const gttsInstance = new gtts(chunks[index], 'es');
-
+    
                         const savePromise = saveAudioWithRetries(gttsInstance, mp3FilePath, 3);
                         batchPromises.push(savePromise);
                     }
-
+    
                     await Promise.all(batchPromises);
                     console.log(`Lote de ${batchPromises.length} archivos completado.`);
                 }
-
+    
                 return audioFilePaths;
             };
-
+    
             const audioFilePaths = await guardarAudioPorLotes(chunks, documentoNameCifrado, audioDir);
-
+    
             console.log(audioFilePaths);
-
+    
             const combinedAudioPath = path.join(__dirname, "../public/audio/completo", `${carpetaName}.mp3`);
             const fileListPath = path.join(__dirname, `../public/audio/partes/${carpetaName}_filelist.txt`);
             fs.writeFileSync(fileListPath, audioFilePaths.map(filePath => `file '${filePath}'`).join('\n'));
-
+    
             await new Promise((resolve, reject) => {
                 const ffmpegCommand = `ffmpeg -f concat -safe 0 -i "${fileListPath}" -c copy "${combinedAudioPath}"`;
                 exec(ffmpegCommand, (error, stdout, stderr) => {
@@ -92,7 +98,7 @@ class DocumentoController {
                     resolve();
                 });
             });
-
+    
             const data = {
                 id_entidad: req.body.id,
                 nombre: req.body.nombre,
@@ -110,25 +116,25 @@ class DocumentoController {
                 nombre: carpetaName
             };
             await transaction.commit();
-
+    
             if (fs.existsSync(audioDir)) {
                 fs.rmdirSync(audioDir, { recursive: true });
                 console.log(`Carpeta de audio eliminada: ${audioDir}`);
             }
             if (fs.existsSync(fileListPath)) fs.unlinkSync(fileListPath);
-
+    
             return res.status(200).json({
                 msg: "SE HAN REGISTRADO LOS DATOS CON ÉXITO",
                 code: 200, info: respuesta
             });
-
+    
         } catch (error) {
             try {
                 if (req.file && req.file.path) {
                     fs.unlinkSync(path.join(__dirname, '../public/documentos', req.file.filename));
                     const txtFileName = req.file.filename.replace(/\.pdf$/, '.txt');
                     fs.unlinkSync(path.join(__dirname, '../public/documentos', txtFileName));
-
+    
                     const audioDir = path.join(__dirname, `../public/audio/partes/${req.file.filename.replace(/\.pdf$/, '')}`);
                     if (fs.existsSync(audioDir)) {
                         fs.rmdirSync(audioDir, { recursive: true });
@@ -138,18 +144,18 @@ class DocumentoController {
             } catch (cleanupError) {
                 console.error("Error al limpiar archivos y carpetas:", cleanupError.message);
             }
-
+    
             if (transaction && !transaction.finished) {
                 await transaction.rollback();
             }
-
+    
             return res.status(400).json({
                 msg: error.message || "Ha ocurrido un error en el servidor",
                 code: 400
             });
         }
     }
-    async obtener(req, res) {
+        async obtener(req, res) {
         try {
 
             const externalId = req.params.external_id;
