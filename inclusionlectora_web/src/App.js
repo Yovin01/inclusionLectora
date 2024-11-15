@@ -7,6 +7,7 @@ import Perfil from './fragment/Perfil';
 import ListaUsuarios from './fragment/ListaUsuarios';
 import Extractor from './fragment/Extractor';
 import Dashboard from './fragment/Dashboard';
+import SobreNosotros from './fragment/SobreNosotros';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path='/perfil' element={<Perfil />} />
         <Route path='/usuarios' element={<ListaUsuarios />} />
         <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/contactanos' element={<SobreNosotros/>} />
       </Routes>
     </div>
   );
