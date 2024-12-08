@@ -84,7 +84,7 @@ class EntidadController {
 
 
     async guardar(req, res) {
-        const transaction = await models.sequelize.transaction();
+        let transaction = await models.sequelize.transaction();
         const saltRounds = 10;
     
         try {

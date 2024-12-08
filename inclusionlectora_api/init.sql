@@ -1,3 +1,4 @@
+use inclusionlectora_db;
 INSERT INTO rol (id, external_id, estado, nombre, createdAt, updatedAt) VALUES
          (1, '1376cf7e-907c-11ef-8f4d-30e37a2aa82d', 1, 'ADMINISTRADOR', '2024-10-19 05:30:36', '2024-10-19 05:30:36');
 

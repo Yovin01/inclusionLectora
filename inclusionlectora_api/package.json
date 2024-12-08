@@ -11,8 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
-    "clean-css": "^5.3.3",
-    "constantinople": "^4.0.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",

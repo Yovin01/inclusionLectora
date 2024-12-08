@@ -8,7 +8,7 @@ const models = require('../models');
 
 class DocumentoController {
     async guardar(req, res) {
-        const transaction = await models.sequelize.transaction();
+        let transaction = await models.sequelize.transaction();
     
         try {
             const documentoNameCifrado = req.file.filename;
@@ -38,7 +38,7 @@ class DocumentoController {
             }
     
             // Función para guardar el archivo de audio con reintentos
-            const saveAudioWithRetries = async (gttsInstance, filePath, retries = 3) => {
+            const saveAudioWithRetries = async (gttsInstance, filePath, retries = 1) => {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
                         await new Promise((resolve, reject) => {
@@ -104,7 +104,8 @@ class DocumentoController {
                 nombre: req.body.nombre,
                 external_id: carpetaName,
                 audio: {
-                    tiempo_reproduccion: '0:00'
+                    external_id: carpetaName,
+                    tiempo_reproduccion: 0.0
                 },
             };
             const nuevoDocumento = await models.documento.create(data, {
@@ -124,8 +125,8 @@ class DocumentoController {
             if (fs.existsSync(fileListPath)) fs.unlinkSync(fileListPath);
     
             return res.status(200).json({
-                msg: "SE HAN REGISTRADO LOS DATOS CON ÉXITO",
-                code: 200, info: respuesta
+                msg: "SE HA GUARDADO CON ÉXITO",
+                code: 200, info: carpetaName
             });
     
         } catch (error) {
@@ -184,16 +185,18 @@ class DocumentoController {
         }
     }
     async eliminar(req, res) {
-        const transaction = await models.sequelize.transaction();
+        let transaction = await models.sequelize.transaction();
     
         try {
             const externalId = req.params.external_id;
             const documento = await models.documento.findOne({
-                where: { external_id: externalId },
-                include: [{ model: models.audio, as: 'audio' }]
+                where: { external_id: externalId }
             });
+            const audio = await models.audio.findOne({
+                where: { external_id: externalId }
+            })
     
-            if (!documento) {
+            if (!documento || !audio) {
                 return res.status(404).json({
                     msg: "Documento no encontrado",
                     code: 404
@@ -207,7 +210,7 @@ class DocumentoController {
             const combinedAudioPath = path.join(__dirname, "../public/audio/completo", `${documentoNameCifrado}.mp3`);
     
             await documento.destroy({ transaction });
-    
+            await audio.destroy({ transaction });
             if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
             if (fs.existsSync(txtPath)) fs.unlinkSync(txtPath);
             if (fs.existsSync(audioDir)) fs.rmdirSync(audioDir, { recursive: true });

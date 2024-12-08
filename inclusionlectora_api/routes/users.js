@@ -16,7 +16,8 @@ const RolEntidadController = require('../controls/RolEntidadController');
 var rolEntidadController = new RolEntidadController();
 const DocumentoController = require("../controls/DocumnetoController");
 var documentoController = new DocumentoController();
-
+const AudioController = require("../controls/AudioController");
+var audioController = new AudioController();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -133,6 +134,8 @@ const uploadFotoPersona = uploadFoto('../public/images/users');
 const uploadDocumento = uploadDocumentoTamano('../public/documentos');
 
 
+
+
 //INICIO DE SESION
 router.post('/sesion', [
   body('correo', 'Ingrese un correo valido').exists().not().isEmpty().isEmail(),
@@ -215,5 +218,9 @@ router.get('/rol/entidad/listar', rolEntidadController.listar);
 router.post('/asignar/lideres', rolEntidadController.asignarLideres);
 router.get('/rol/entidad/obtener/lider', rolEntidadController.obtenerLider);
 router.get('/rol/entidad/obtener/administrador', rolEntidadController.obtenerAdministrador);
+
+/*    AUDIO  */
+router.put('/audio/:external_id', audioController.guardar);
+router.get('/audio/:external_id', audioController.obtener);
 
 module.exports = router;  

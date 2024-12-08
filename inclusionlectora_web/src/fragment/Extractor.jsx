@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../css/style.css';
-import { GuardarArchivos, URLBASE } from '../utilities/hooks/Conexion';
+import { GuardarArchivos, peticionGet, peticionPut, URLBASE } from '../utilities/hooks/Conexion';
 import { getToken, getUser } from '../utilities/Sessionutil';
 import mensajes from '../utilities/Mensajes';
 import MenuBar from './MenuBar';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 const Extractor = () => {
+      const navegation = useNavigate();
     const { external_id } = useParams();
     const [file, setFile] = useState(null);
     const [fileURL, setFileURL] = useState(null); // URL para visualizar el PDF
@@ -15,22 +17,46 @@ const Extractor = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [playbackRate, setPlaybackRate] = useState(1);
     const [showPdf, setShowPdf] = useState(false); // Estado para controlar la visualización del PDF
+    const [lastPlaybackTime, setLastPlaybackTime] = useState(0); // Tiempo guardado
     const audioRef = useRef(null);
 
     useEffect(() => {
-        // Si external_id no es "new", intenta cargar el audio correspondiente
         if (external_id && external_id !== "new") {
             setAudioComplete(`${URLBASE}audio/completo/${external_id}.mp3`);
             setFileURL(`${URLBASE}documentos/${external_id}.pdf`);
+            peticionGet(getToken(), `audio/${external_id}`).then((info) => {
+                if (info.code === 200) {
+                    setLastPlaybackTime(parseFloat(info.info.tiempo_reproduccion));
+                }
+            });
         }
+
     }, [external_id]);
+
+    useEffect(() => {
+        if (audioRef.current && lastPlaybackTime > 0) {
+            audioRef.current.currentTime = lastPlaybackTime;
+        }
+    }, [audioComplete, lastPlaybackTime]);
+
+    useEffect(() => {
+        if (!audioComplete) return;
+
+        const intervalId = setInterval(() => {
+            if (audioRef.current) {
+                savePlaybackTime();
+            }
+        }, 10000); // Cada 10 segundos
+
+        return () => clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+    }, [audioComplete, audioRef, external_id]);
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         setFile(selectedFile);
         const pdfURL = URL.createObjectURL(selectedFile);
         setFileURL(pdfURL);
-        setShowPdf(false); // Oculta el PDF hasta que se haga clic en "Ver PDF"
+        setShowPdf(false);
     };
 
     const handleSave = () => {
@@ -53,9 +79,9 @@ const Extractor = () => {
                 setAudioComplete(`${URLBASE}audio/completo/${info.info.nombre}.mp3`);
                 setLoading(false);
                 mensajes("Documento guardado con éxito");
+                navegation(`/extraer/${info.info}`);
             }
         }).catch(error => {
-            console.error('Error al guardar el documento:', error);
             mensajes("Error al guardar el documento", 'error', 'Error');
             setLoading(false);
         });
@@ -73,11 +99,21 @@ const Extractor = () => {
     const changePlaybackRate = (event) => {
         const newRate = parseFloat(event.target.value);
         setPlaybackRate(newRate);
-        audioRef.current.playbackRate = newRate;
+        if (audioRef.current) {
+            audioRef.current.playbackRate = newRate;
+        }
     };
 
     const skipTime = (seconds) => {
         audioRef.current.currentTime += seconds;
+    };
+
+    const savePlaybackTime = () => {
+        const currentTime = audioRef.current.currentTime;
+        const data = {
+            tiempo_reproduccion: currentTime
+        };
+        peticionPut(getToken(), `audio/${external_id}`, data);
     };
 
     return (
@@ -104,9 +140,14 @@ const Extractor = () => {
                                         <h2>Reproducción de Audio</h2>
                                     </header>
                                     <div className="card-body">
-                                    <div className="audio-container">
-    <audio ref={audioRef} src={audioComplete} controls style={{ width: '70%' }} />
-</div>
+                                        <div className="audio-container">
+                                            <audio
+                                                ref={audioRef}
+                                                src={audioComplete}
+                                                controls
+                                                style={{ width: '70%' }}
+                                            />
+                                        </div>
 
                                         <div className="audio-controls">
                                             <button className="btn-positivoazul text-white" onClick={() => skipTime(-10)}>
@@ -139,25 +180,23 @@ const Extractor = () => {
 
                         {!audioComplete && (
                             <div className="file-upload-card">
-                               
-                                    <header className="titulo-primario">
-                                        <h2>Carga tu documento PDF</h2>
-                                    </header>
-                                    <div className="card-body">
-                                        <input type="file" onChange={handleFileChange} accept=".pdf" />
-                                        <button className="btn-positivo text-white" type="submit" onClick={handleSave} disabled={!file}>
-                                            EXTRAER
-                                        </button>
-                                       
-                                    </div>
-                                
+                                <header className="titulo-primario">
+                                    <h2>Carga tu documento PDF</h2>
+                                </header>
+                                <div className="card-body">
+                                    <input type="file" onChange={handleFileChange} accept=".pdf" />
+                                    <button className="btn-positivo text-white" type="submit" onClick={handleSave} disabled={!file}>
+                                        EXTRAER
+                                    </button>
+                                </div>
                             </div>
                         )}
-                         {fileURL && (
-                                            <button className="btn-positivo text-white" onClick={() => setShowPdf(!showPdf)}>
-                                                {showPdf ? "OCULTAR PDF" : "VER PDF"}
-                                            </button>
-                                        )}
+
+                        {fileURL && (
+                            <button className="btn-positivo text-white" onClick={() => setShowPdf(!showPdf)}>
+                                {showPdf ? "OCULTAR PDF" : "VER PDF"}
+                            </button>
+                        )}
 
                         {showPdf && fileURL && (
                             <div className="contenedor-carta">
