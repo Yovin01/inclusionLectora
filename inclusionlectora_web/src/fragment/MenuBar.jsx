@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Dropdown, Container } from 'react-bootstrap';
-import { borrarSesion, getToken, getUser } from '../utilities/Sessionutil';
+import { borrarSesion, getRolApi, getToken, getUser } from '../utilities/Sessionutil';
 import { URLBASE } from '../utilities/hooks/Conexion';
 import { useNavigate } from 'react-router-dom';
 import logoWhite from '../img/logo-white.png';
@@ -9,6 +9,7 @@ import '../css/style.css';
 const MenuBar = () => {
     const [nombreUsuario, setNombreUsuario] = useState('');
     const [fotoUsuario, setFotoUsuario] = useState('');
+    const [idRol, setIdRol] = useState('');
     const token = getToken();
     const navigate = useNavigate();
 
@@ -17,6 +18,7 @@ const MenuBar = () => {
         if (usuario) {
             setNombreUsuario(usuario.nombres ? `${usuario.nombres.toUpperCase()} ${usuario.apellidos.toUpperCase()}` : usuario.username);
             setFotoUsuario(usuario.user.foto);
+            setIdRol(getRolApi());
         }
     }, []);
 
@@ -27,15 +29,18 @@ const MenuBar = () => {
 
     return (
         <Navbar bg="dark" variant="dark" expand="lg" className="navbar">
-        <Container fluid className="navbar-custom-container">
-          <Navbar.Brand href="#">
-            <img src={logoWhite} alt="Universidad Nacional de Loja" className="img-fluid me-2 header-logo" style={{ width: '200px' }} />
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="navbarNav" />
-          <Navbar.Collapse id="navbarNav">
+            <Container fluid className="navbar-custom-container">
+                <Navbar.Brand href="#">
+                    <img src={logoWhite} alt="Universidad Nacional de Loja" className="img-fluid me-2 header-logo" style={{ width: '200px' }} />
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="navbarNav" />
+                <Navbar.Collapse id="navbarNav">
                     <Nav className="me-auto">
                         {token && (
                             <>
+                                {idRol === '1' && (
+                                    <Nav.Link href="/configuracion" className="text-white">Configuraciones</Nav.Link>
+                                )}
                                 <Nav.Link href="/extraer/new" className="text-white">Extraer PDF</Nav.Link>
                                 <Nav.Link href="/dashboard" className="text-white">Documentos</Nav.Link>
                                 <Nav.Link href="/contactanos" className="text-white">Información</Nav.Link>

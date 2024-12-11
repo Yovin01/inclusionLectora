@@ -4,6 +4,7 @@ let jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const uuid = require('uuid');
+let maxFileSize = 3 * 1024 * 1024; // Inicialmente 2 MB
 
 const { body, validationResult,isDate } = require('express-validator');
 const RolController = require('../controls/RolController');
@@ -23,48 +24,61 @@ var audioController = new AudioController();
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
-
-var auth = function middleware(req, res, next) {
+const auth = (options = { checkAdmin: false }) => async (req, res, next) => {
   const token = req.headers['x-api-token'];
-  if (token) {
-    require('dotenv').config();
-    const llave = process.env.KEY;
-    console.log(llave)
-    jwt.verify(token, llave, async (err, decoded) => {
-      if (err) {
-        res.status(401);
-        res.json({
-          msg: "Token no valido",
-          code: 401
-        });
-      } else {
-        var models = require('../models');
-        var cuenta = models.cuenta;
-        req.decoded = decoded;
-        let aux = await cuenta.findOne({ 
-          where: { 
-            external_id: req.decoded.external 
-          } 
-        })
-        if (aux === null) {
-          res.status(401);
-          res.json({
-            msg: "Token no valido o expirado",
-            code: 401
-          });
-        } else {
-          next();
-        }
-      }
-    });
-  } else {
-    res.status(401);
-    res.json({
+  if (!token) {
+    return res.status(401).json({
       msg: "No existe token",
-      code: 401
+      code: 401,
     });
   }
 
+  try {
+    require('dotenv').config();
+    const llave = process.env.KEY;
+    const decoded = jwt.verify(token, llave);
+    req.decoded = decoded;
+
+    const models = require('../models');
+    const cuenta = models.cuenta;
+    const rolEntidad = models.rol_entidad;
+
+    // Verifica que la cuenta existe
+    const user = await cuenta.findOne({
+      where: { external_id: req.decoded.external },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        msg: "Token no válido o expirado",
+        code: 401,
+      });
+    }
+
+    // Si se requiere verificar si es admin
+    if (options.checkAdmin) {
+      const isAdmin = await rolEntidad.findOne({
+        where: {
+          id_entidad: user.id_entidad,
+          id_rol: 1, // ID de administrador
+        },
+      });
+
+      if (!isAdmin) {
+        return res.status(403).json({
+          msg: "Acceso denegado: No tiene permisos de administrador",
+          code: 403,
+        });
+      }
+    }
+
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      msg: "Token no válido",
+      code: 401,
+    });
+  }
 };
 
 // GUARDAR IMAGENES 
@@ -106,34 +120,53 @@ const extensionesAceptadasDocumentos = (req, file, cb) => {
 };
 
 // Configuración de Multer con control de tamaño y tipo de archivo
-const uploadFoto = (folderPath) => {
-  const storage = createStorage(folderPath);
-  return multer({
+// Middleware dinámico para Multer
+const uploadFotoPersona = (req, res, next) => {
+  const storage = createStorage('../public/images/users');
+  const upload = multer({
     storage: storage,
     fileFilter: extensionesAceptadasFoto,
-    limits: {
-      fileSize: 2 * 1024 * 1024  // 5MB
-    }
-  });
+    limits: { fileSize: maxFileSize }, // Lee el tamaño actual de maxFileSize
+  }).single('foto');
+  upload(req, res, next);
 };
 
-const uploadDocumentoTamano = (folderPath) => {
-  const storage = createStorage(folderPath);
-  return multer({
+const uploadDocumento = (req, res, next) => {
+  const storage = createStorage('../public/documentos');
+  const upload = multer({
     storage: storage,
     fileFilter: extensionesAceptadasDocumentos,
-    limits: {
-      fileSize: 500 * 1024 * 1024  // 500MB
-    }
-  });
+    limits: { fileSize: maxFileSize }, // Lee el tamaño actual de maxFileSize
+  }).single('documento');
+  upload(req, res, next);
 };
 
 
-// Ejemplos de uso
-const uploadFotoPersona = uploadFoto('../public/images/users');
-const uploadDocumento = uploadDocumentoTamano('../public/documentos');
+//Global configs
+router.get('/config/tamano/:zize',  auth({ checkAdmin: true }),(req, res) => {
+  const size = parseInt(req.params.zize);
 
+  if (!size || isNaN(size) || size <= 0) {
+    return res.status(400).json({
+      msg: "Debe proporcionar un tamaño válido en MB.",
+      code: 400,
+    });
+  }
 
+  maxFileSize = size * 1024 * 1024; // Convertir MB a bytes
+  res.status(200).json({
+    msg: `Tamaño máximo de archivo actualizado a ${size} MB.`,
+    code: 200, info: size,
+  });
+});
+router.get('/config/tamano',  auth({ checkAdmin: true }),(req, res) => {
+  res.status(200).json({code: 200,
+    info: maxFileSize / (1024 * 1024),
+  });
+});
+
+router.post(  '/documentos/eliminar/todos',  auth({ checkAdmin: true }), [
+  body('key','Ingrese una clave valida').exists().not().isEmpty() ],  documentoController.eliminarTodos);
 
 
 //INICIO DE SESION
@@ -150,35 +183,35 @@ router.post('/rol/guardar', rolController.guardar);
 
 /*****ENTIDAD****/
 router.post('/entidad/guardar', (req, res, next) => {
-  uploadFotoPersona.single('foto')(req, res, (error) => {
+  uploadFotoPersona(req, res, (error) => {
     if (error) {
       if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
         return res.status(413).json({
-          msg: "El archivo es demasiado grande. Por favor, sube un archivo de menos de 2 MB.",
-          code: 413
+          msg: `El archivo es demasiado grande. Por favor, sube un archivo de menos de ${maxFileSize / (1024 * 1024)} MB.`,
+          code: 413,
         });
       }
       return res.status(400).json({
         msg: "Error al cargar el archivo: " + error.message,
-        code: 400
+        code: 400,
       });
     }
     entidadController.guardar(req, res, next);
   });
 });
 
- router.post('/documento', (req, res, next) => {
-  uploadDocumento.single('documento')(req, res, (error) => {
+router.post('/documento', (req, res, next) => {
+  uploadDocumento(req, res, (error) => {
     if (error) {
       if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
         return res.status(413).json({
-          msg: "El archivo es demasiado grande. Por favor, sube un archivo de menos de 500 MB.",
-          code: 413
+          msg: `El archivo es demasiado grande. Por favor, sube un archivo de menos de ${maxFileSize / (1024 * 1024)} MB.`,
+          code: 413,
         });
       }
       return res.status(400).json({
         msg: "Error al cargar el archivo: " + error.message,
-        code: 400
+        code: 400,
       });
     }
     documentoController.guardar(req, res, next);
@@ -187,7 +220,19 @@ router.post('/entidad/guardar', (req, res, next) => {
 
 
 router.get('/documento/:external_id', documentoController.obtener);
+router.get('/documento/one/:external_id', documentoController.obtenerOneDoc);
 router.delete('/documento/:external_id', documentoController.eliminar);
+router.get('/documento/entidad/:id_entidad/:nombre', documentoController.exist);
+
+router.get('/audio/descargar/:filename', (req, res) => {
+  const filePath = path.join(__dirname, '../public/audio/completo/', req.params.filename);  // Ajusta la ruta a tus necesidades
+  res.download(filePath, (err) => {
+      if (err) {
+          console.error('Error al descargar el archivo', err);
+          res.status(500).send('Error al descargar el archivo');
+      }
+  });
+});
 
 router.put('/modificar/entidad', (req, res, next) => {
   uploadFotoPersona.single('foto')(req, res, (error) => {

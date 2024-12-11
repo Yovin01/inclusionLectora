@@ -30,7 +30,11 @@ class CuentaController {
                     as: "entidad"
                 }]
             });
-
+var rol = await models.rol_entidad.findOne({
+                where: {
+                    id_entidad: login.entidad.id
+                }
+});
             if (login === null)
                 return res.status(400).json({
                     msg: "CUENTA NO ENCONTRADA",
@@ -71,6 +75,7 @@ class CuentaController {
                             nombres: login.entidad.nombres,
                             apellidos: login.entidad.apellidos,
                             user: login.entidad,
+                            rol: rol.id_rol
                         },
                     },
                     code: 200

@@ -1,0 +1,102 @@
+/* Sobre_nOSOTROS.css */
+
+/* General */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+  }
+  
+  h1, h2 {
+    margin: 0;
+  }
+  
+  /* Header */
+ 
+  
+  /* Main Content */
+  .sobre-nosotros {
+    padding: 2rem 1rem;
+  }
+  
+  /* Hero Section */
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-content .titulo-principal {
+    font-size: 2.5rem;
+    font-weight: bold;
+color: #529914;
+  }
+  
+  .hero-content .descripcion {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    line-height: 1.8;
+  }
+  
+  /* Section General */
+  section {
+    margin-bottom: 2rem;
+  }
+  
+  .contenedor {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Titles */
+  .titulo-secundario {
+    font-size: 1.8rem;
+    color: #A6B1E1;
+    margin-bottom: 1rem;
+  }
+  
+  /* Text */
+  .texto-normal {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #555;
+    line-height: 1.8;
+  }
+  
+  /* List Style */
+  .lista-detallada {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .lista-detallada li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .lista-detallada a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .lista-detallada a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 1rem 0;
+    color: #fff;
+    margin-top: 2rem;
+  }
+  
+  .footer p {
+    margin: 0;
+  }
+  

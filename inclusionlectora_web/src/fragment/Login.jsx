@@ -4,7 +4,7 @@ import '../css/Login_Style.css'
 import { InicioSesion } from '../utilities/hooks/Conexion';
 import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
-import { saveCorreo, saveToken, saveUser } from '../utilities/Sessionutil';
+import { saveCorreo, saveRolApi, saveToken, saveUser } from '../utilities/Sessionutil';
 import mensajes from '../utilities/Mensajes';
 
 const Login = () => {
@@ -39,7 +39,8 @@ const Login = () => {
             } else {
                 saveToken(infoAux.token);                
                 saveUser(infoAux.user);
-                saveCorreo(infoAux.correo);
+                saveCorreo(infoAux.user.correo);
+                saveRolApi(infoAux.user.rol);
                 mensajes(info.msg);
                 navegation("/dashboard");
             }

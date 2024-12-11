@@ -27,8 +27,15 @@ export const getUser = () => {
     return JSON.parse(userJSON);
 }
 
+//------------------ROL------------------
+export const saveRolApi = (rol) => {
+    localStorage.setItem("id_rol", rol);
+}
+export const getRolApi = () => {
+    return localStorage.getItem('id_rol');
+}
 
-
+//------------------TOKEN------------------
 export const savetokenApi = (tokenapi) => {
     localStorage.setItem("tokenapi", tokenapi);
 }

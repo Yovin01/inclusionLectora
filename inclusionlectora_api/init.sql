@@ -1,6 +1,7 @@
 use inclusionlectora_db;
 INSERT INTO rol (id, external_id, estado, nombre, createdAt, updatedAt) VALUES
-         (1, '1376cf7e-907c-11ef-8f4d-30e37a2aa82d', 1, 'ADMINISTRADOR', '2024-10-19 05:30:36', '2024-10-19 05:30:36');
+         (1, '1376cf7e-907c-11ef-8f4d-30e37a2aa82d', 1, 'ADMINISTRADOR', '2024-10-19 05:30:36', '2024-10-19 05:30:36'),
+         (2, '1376cf7e-907c-11ef-8f4d-30e37a2aa83d', 1, 'USUARIO', '2024-10-19 05:30:36', '2024-10-19 05:30:36');
 
 
          INSERT INTO entidad (id, external_id, estado, foto, nombres, apellidos, fecha_nacimiento, telefono, createdAt, updatedAt) 
@@ -22,6 +23,11 @@ INSERT INTO rol (id, external_id, estado, nombre, createdAt, updatedAt) VALUES
          (4, '59476e19-907e-11ef-8f4d-30e37a2aa82d', 1, 'pedro.ramirez@unl.edu.ec', '$2a$08$vcbwdzAoBjH027Yt6B9PwO3G65afLhrMfejne1EJ7uoPGuLslHLC6', '2024-10-22 09:03:00', '2024-10-22 09:03:00', 4),
          (5, '59476f57-907e-11ef-8f4d-30e37a2aa82d', 1, 'ana.torres@unl.edu.ec', '$2a$08$vcbwdzAoBjH027Yt6B9PwO3G65afLhrMfejne1EJ7uoPGuLslHLC6', '2024-10-22 09:03:00', '2024-10-22 09:03:00', 5),
          (6, '594770e6-907e-11ef-8f4d-30e37a2aa82d', 1, 'sofia.mendoza@unl.edu.ec', '$2a$08$vcbwdzAoBjH027Yt6B9PwO3G65afLhrMfejne1EJ7uoPGuLslHLC6', '2024-10-22 09:03:00', '2024-10-22 09:03:00', 6);
-         INSERT INTO rol_entidad (external_id, estado, createdAt, updatedAt, id_entidad, id_rol)
+         INSERT INTO rol_entidad (external_id, estado, createdAt, updatedAt, id_rol,id_entidad)
          VALUES 
-         ('a1b2c3d4-e5f6-7890-1234-56789abcdef0', 1, NOW(), NOW(), 1, 1);
+         ('a1b2c3d4-e5f6-7890-1234-56789abcdef0', 1, NOW(), NOW(), 1, 1),
+         ('a1b2c3d4-e5f6-7890-1234-56789abcdef1', 1, NOW(), NOW(), 2, 2),
+         ('a1b2c3d4-e5f6-7890-1234-56789abcdef2', 1, NOW(), NOW(), 2, 3),
+         ('a1b2c3d4-e5f6-7890-1234-56789abcdef3', 1, NOW(), NOW(), 2, 4),
+         ('a1b2c3d4-e5f6-7890-1234-56789abcdef4', 1, NOW(), NOW(), 2, 5),
+         ('a1b2c3d4-e5f6-7890-1234-56789abcdef5', 1, NOW(), NOW(), 2, 6);

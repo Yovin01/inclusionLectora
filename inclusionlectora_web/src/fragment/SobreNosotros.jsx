@@ -1,47 +1,52 @@
 // SobreNosotros.js
 import React from 'react';
-import '../css/style.css';
+import '../css/Sobre_Nosotros.css';
 import MenuBar from './MenuBar';
 
 const SobreNosotros = () => {
   return (
     <div>
-        <header>
-                <MenuBar />
-            </header>
-    <div className="fondo-principal">
-        <div className="contenedor-carta-columna">
-          <header className="titulo-primario">
-            <h1>Sobre Nosotros</h1>
-          </header>
+      <header>
+        <MenuBar />
+      </header>
 
-          <section className="content-container">
-            <h2 className="titulo-secundario">Nuestra Historia</h2>
-            <p className="texto-normal">
-              Fundada en 2020, nuestra empresa ha crecido rápidamente gracias a nuestra dedicación y compromiso con la excelencia.
-              Nos esforzamos por ofrecer servicios de alta calidad y superar las expectativas de nuestros clientes.
+      <main className="sobre-nosotros">
+        <section className="hero">
+          <div className="hero-content">
+            <h1 className="titulo-principal">Inclusión Lectora</h1>
+            <p className="descripcion">
+              Transformamos documentos PDF en archivos de audio MP3 para promover la inclusión de personas con discapacidad visual.
             </p>
+          </div>
+        </section>
 
-            <h2 className="titulo-secundario">Valores</h2>
-            <ul>
-              <li className="texto-normal"><strong>Innovación:</strong> Nos apasiona la creatividad y las ideas frescas para resolver problemas.</li>
-              <li className="texto-normal"><strong>Compromiso:</strong> Trabajamos incansablemente para cumplir con nuestros objetivos y satisfacer a nuestros clientes.</li>
-              <li className="texto-normal"><strong>Integridad:</strong> Actuamos con transparencia, honestidad y responsabilidad en todo lo que hacemos.</li>
+        <section className="info">
+          <div className="contenedor">
+            <h2 className="titulo-secundario">¿Qué es Inclusión Lectora?</h2>
+            <p className="texto-normal">
+              Inclusión Lectora es una aplicación que convierte documentos PDF a formato MP3, ayudando a personas con discapacidad visual a acceder a contenidos de forma práctica e inclusiva. Nuestro objetivo es derribar barreras y garantizar igualdad de acceso a la información.
+            </p>
+          </div>
+        </section>
+
+        <section className="equipo">
+          <div className="contenedor">
+            <h2 className="titulo-secundario">Equipo del Proyecto</h2>
+            <ul className="lista-detallada">
+              <li><strong>Desarrollador:</strong> Yovin Stiven Urrego Gómez - <a href="mailto:yovin.urrego@unl.edu.ec">yovin.urrego@unl.edu.ec</a></li>
+              <li><strong>Responsable del Proyecto:</strong> Oscar Miguel Cumbicus Pineda - <a href="mailto:oscar.cumbicus@unl.edu.ec">oscar.cumbicus@unl.edu.ec</a></li>
+              <li><strong>Responsable del Proyecto:</strong> Francisco Javier Alvarez Pineda - <a href="mailto:fjalvarez@unl.edu.ec">fjalvarez@unl.edu.ec</a></li>
             </ul>
+          </div>
+        </section>
 
-            <h2 className="titulo-secundario">Nuestro Equipo</h2>
-            <p className="texto-normal">
-              Contamos con un equipo diverso de profesionales que aportan experiencia y conocimientos en múltiples áreas. 
-              Juntos, formamos una red de personas apasionadas y comprometidas en hacer la diferencia.
-            </p>
-          </section>
-
-          <footer className="about-us-footer">
-            <p className="texto-normal">© {new Date().getFullYear()} Nuestra Empresa. Todos los derechos reservados.</p>
-          </footer>
-        </div>
-      </div>
-    </div> 
+        <footer className="footer">
+          <div className="contenedor">
+            <p className="texto-normal">© {new Date().getFullYear()} Inclusión Lectora. Todos los derechos reservados.</p>
+          </div>
+        </footer>
+      </main>
+    </div>
   );
 };
 

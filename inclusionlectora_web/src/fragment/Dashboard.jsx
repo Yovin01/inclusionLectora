@@ -23,9 +23,7 @@ const Dashboard = () => {
             .then((info) => {
                 if (info.code === 200) {
                     setDocumentos(info.info);
-                } else {
-                    mensajes(info.msg, 'error', 'Error');
-                }
+                } 
             })
             .catch((error) => {
                 console.error('Error al cargar documentos:', error);

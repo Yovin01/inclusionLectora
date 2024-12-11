@@ -6,31 +6,44 @@ import mensajes from '../utilities/Mensajes';
 import MenuBar from './MenuBar';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
+import swal from 'sweetalert';
 
 const Extractor = () => {
-      const navegation = useNavigate();
+    const navegation = useNavigate();
     const { external_id } = useParams();
     const [file, setFile] = useState(null);
-    const [fileURL, setFileURL] = useState(null); // URL para visualizar el PDF
+    const [fileURL, setFileURL] = useState(null);
     const [loading, setLoading] = useState(false);
     const [audioComplete, setAudioComplete] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [playbackRate, setPlaybackRate] = useState(1);
-    const [showPdf, setShowPdf] = useState(false); // Estado para controlar la visualización del PDF
-    const [lastPlaybackTime, setLastPlaybackTime] = useState(0); // Tiempo guardado
+    const [showPdf, setShowPdf] = useState(false);
+    const [lastPlaybackTime, setLastPlaybackTime] = useState(0);
     const audioRef = useRef(null);
+    const beepInterval = useRef(null);
+    const [audioName, setAudioName] = useState('');
+
+    const playSound = (path) => {
+        const audio = new Audio(path);
+        audio.play();
+    };
 
     useEffect(() => {
         if (external_id && external_id !== "new") {
             setAudioComplete(`${URLBASE}audio/completo/${external_id}.mp3`);
             setFileURL(`${URLBASE}documentos/${external_id}.pdf`);
+            peticionGet(getToken(), `documento/one/${external_id}`).then((info) => {
+                if (info.code === 200) {
+                    setAudioName(info.info.nombre);
+                }
+            });
             peticionGet(getToken(), `audio/${external_id}`).then((info) => {
                 if (info.code === 200) {
                     setLastPlaybackTime(parseFloat(info.info.tiempo_reproduccion));
                 }
             });
-        }
 
+        }
     }, [external_id]);
 
     useEffect(() => {
@@ -46,9 +59,9 @@ const Extractor = () => {
             if (audioRef.current) {
                 savePlaybackTime();
             }
-        }, 10000); // Cada 10 segundos
+        }, 10000);
 
-        return () => clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+        return () => clearInterval(intervalId);
     }, [audioComplete, audioRef, external_id]);
 
     const handleFileChange = (event) => {
@@ -58,35 +71,73 @@ const Extractor = () => {
         setFileURL(pdfURL);
         setShowPdf(false);
     };
-
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!file) {
             mensajes("No se ha seleccionado un archivo", 'error', 'Error');
             return;
         }
 
+        // Verificar si el documento ya existe
+        const existingDocumentResponse = await peticionGet(
+            getToken(),
+            `documento/entidad/${getUser().user.id}/${file.name}`
+        );
+
+        if (existingDocumentResponse && existingDocumentResponse.info === true) {
+            const confirmOverwrite = await swal({
+                title: "Documento ya existe",
+                text: `El documento "${file.name}" ya existe. ¿Quieres guardarlo con el mismo nombre?`,
+                icon: "warning",
+                buttons: {
+                    cancel: "Cancelar",
+                    confirm: {
+                        text: "Guardar",
+                        value: true,
+                        visible: true,
+                        className: "btn-danger",
+                    },
+                },
+                dangerMode: true,
+            });
+
+            if (!confirmOverwrite) {
+                mensajes("Operación cancelada por el usuario.", 'info', 'Información');
+                return;
+            }
+        }
         setLoading(true);
+        playSound('/audio/cargando.mp3');
+
+        beepInterval.current = setInterval(() => {
+            playSound('/audio/beepbeepbeep-53921.mp3');
+        }, 5000);
+
         const formData = new FormData();
         formData.append('nombre', file.name);
         formData.append('documento', file);
         formData.append('id', getUser().user.id);
 
-        GuardarArchivos(formData, getToken(), "/documento").then(info => {
-            if (info.code !== 200) {
-                mensajes(info.msg, 'error', 'Error');
-                setLoading(false);
-            } else {
-                setAudioComplete(`${URLBASE}audio/completo/${info.info.nombre}.mp3`);
-                setLoading(false);
-                mensajes("Documento guardado con éxito");
-                navegation(`/extraer/${info.info}`);
-            }
-        }).catch(error => {
-            mensajes("Error al guardar el documento", 'error', 'Error');
-            setLoading(false);
-        });
-    };
+        GuardarArchivos(formData, getToken(), "/documento")
+            .then(info => {
+                clearInterval(beepInterval.current);
 
+                if (info.code !== 200) {
+                    mensajes(info.msg, 'error', 'Error');
+                    setLoading(false);
+                } else {
+                    setAudioComplete(`${URLBASE}audio/completo/${info.info.nombre}.mp3`);
+                    setLoading(false);
+                    playSound('/audio/listo.mp3');
+                    mensajes("Documento guardado con éxito");
+                    navegation(`/extraer/${info.info}`);
+                }
+            })
+            .catch(error => {
+                clearInterval(beepInterval.current);
+                mensajes("Error al guardar el documento", 'error', 'Error');
+                setLoading(false);
+            });
+    };
     const togglePlayPause = () => {
         if (isPlaying) {
             audioRef.current.pause();
@@ -137,7 +188,7 @@ const Extractor = () => {
                             <div className="audio-section">
                                 <div className="card audio-card">
                                     <header className="titulo-primario">
-                                        <h2>Reproducción de Audio</h2>
+                                        <h2>{audioName}</h2>
                                     </header>
                                     <div className="card-body">
                                         <div className="audio-container">
@@ -193,10 +244,28 @@ const Extractor = () => {
                         )}
 
                         {fileURL && (
-                            <button className="btn-positivo text-white" onClick={() => setShowPdf(!showPdf)}>
-                                {showPdf ? "OCULTAR PDF" : "VER PDF"}
-                            </button>
+                            <div className="botones-container">
+                                <button className="btn-positivo text-white" onClick={() => setShowPdf(!showPdf)}>
+                                    {showPdf ? "OCULTAR PDF" : "VER PDF"}
+                                </button>
+                                {audioComplete && (
+                                    <button
+                                        className="btn-positivo text-white"
+                                        onClick={() => {
+                                            const link = document.createElement('a');
+                                            link.href = `${URLBASE}api/audio/descargar/${external_id}.mp3`;
+                                            link.download = audioName ? `${audioName}.mp3` : "audio.mp3";
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }}
+                                    >
+                                        DESCARGAR AUDIO
+                                    </button>
+                                )}
+                            </div>
                         )}
+
 
                         {showPdf && fileURL && (
                             <div className="contenedor-carta">

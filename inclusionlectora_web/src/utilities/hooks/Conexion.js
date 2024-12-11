@@ -1,5 +1,5 @@
-const URL_BACKEND = "http://localhost:3007/api"
-export const URLBASE = "http://localhost:3007/"; 
+const URL_BACKEND = "http://192.168.0.103:3007/api"
+export const URLBASE = "http://192.168.0.103:3007/"; 
 
 export const loginpost = async (formData, URL) => {
     const headers = {
@@ -22,7 +22,6 @@ export const loginpost = async (formData, URL) => {
             throw new Error(`Unexpected content type: ${text}`);
         }
     } catch (error) {
-        console.error('Error al procesar la respuesta:', error);
         return { msg: 'Error al procesar la respuesta', code: 500 };
     }
 }
@@ -51,8 +50,6 @@ export const peticionGet = async (key, URL) => {
         method: "GET",
         headers: headers,
     })).json();
-    console.log("datos", datos);
-    
     return datos;
 }
 
@@ -104,7 +101,6 @@ export const GuardarArchivos = async (data, key, urls) => {
         
 
     } catch (error) {
-        console.log("Error:", error);
         throw error;
     }
 };
@@ -112,7 +108,6 @@ export const GuardarArchivos = async (data, key, urls) => {
 
 
 export const ActualizarImagenes = async (data, key, urls) => {
-    console.log(data);
     const headers = {
         "x-api-token": key,
     };
@@ -128,7 +123,6 @@ export const ActualizarImagenes = async (data, key, urls) => {
 
         return datos;
     } catch (error) {
-        console.log("Error:", error);
         throw error;
     }
 }
@@ -168,7 +162,6 @@ export const ObtenerPost = async (key, url, bodyData) => {
         return datos;
 
     } catch (error) {
-        console.error("Error al realizar la solicitud POST:", error);
         throw error;
     }
 }

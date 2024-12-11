@@ -8,6 +8,7 @@ import ListaUsuarios from './fragment/ListaUsuarios';
 import Extractor from './fragment/Extractor';
 import Dashboard from './fragment/Dashboard';
 import SobreNosotros from './fragment/SobreNosotros';
+import ConfiguracionGlobal from './fragment/ConfiguracionGlobal';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path='/usuarios' element={<ListaUsuarios />} />
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/contactanos' element={<SobreNosotros/>} />
+        <Route path='/configuracion' element={<ConfiguracionGlobal/>} />
       </Routes>
     </div>
   );
