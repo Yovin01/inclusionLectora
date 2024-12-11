@@ -1,4 +1,4 @@
-const URL_BACKEND = "http://localhost/api"
+const URL_BACKEND = "http://localhost:3007/api"
 export const URLBASE = "http://localhost:3007/"; 
 
 export const loginpost = async (formData, URL) => {
