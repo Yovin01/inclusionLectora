@@ -19,6 +19,8 @@ const DocumentoController = require("../controls/DocumnetoController");
 var documentoController = new DocumentoController();
 const AudioController = require("../controls/AudioController");
 var audioController = new AudioController();
+const PeticionController = require('../controls/PeticionController');
+const peticionController = new PeticionController();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -176,10 +178,10 @@ router.post('/sesion', [
 ], cuentaController.sesion)
 
 //GET-ROL
-router.get('/rol/listar', rolController.listar);
+router.get('/rol/listar',  auth({ checkAdmin: true }), rolController.listar);
 
 //POST ROL
-router.post('/rol/guardar', rolController.guardar);
+router.post('/rol/guardar',  auth({ checkAdmin: true }), rolController.guardar);
 
 /*****ENTIDAD****/
 router.post('/entidad/guardar', (req, res, next) => {
@@ -200,7 +202,7 @@ router.post('/entidad/guardar', (req, res, next) => {
   });
 });
 
-router.post('/documento', (req, res, next) => {
+router.post('/documento',auth(),  (req, res, next) => {
   uploadDocumento(req, res, (error) => {
     if (error) {
       if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
@@ -219,12 +221,12 @@ router.post('/documento', (req, res, next) => {
 });
 
 
-router.get('/documento/:external_id', documentoController.obtener);
-router.get('/documento/one/:external_id', documentoController.obtenerOneDoc);
-router.delete('/documento/:external_id', documentoController.eliminar);
-router.get('/documento/entidad/:id_entidad/:nombre', documentoController.exist);
+router.get('/documento/:external_id', auth(),documentoController.obtener);
+router.get('/documento/one/:external_id', auth(),documentoController.obtenerOneDoc);
+router.delete('/documento/:external_id',auth(), documentoController.eliminar);
+router.get('/documento/entidad/:id_entidad/:nombre',auth(), documentoController.exist);
 
-router.get('/audio/descargar/:filename', (req, res) => {
+router.get('/audio/descargar/:filename',auth(), (req, res) => {
   const filePath = path.join(__dirname, '../public/audio/completo/', req.params.filename);  // Ajusta la ruta a tus necesidades
   res.download(filePath, (err) => {
       if (err) {
@@ -234,7 +236,7 @@ router.get('/audio/descargar/:filename', (req, res) => {
   });
 });
 
-router.put('/modificar/entidad', (req, res, next) => {
+router.put('/modificar/entidad', auth(),(req, res, next) => {
   uploadFotoPersona.single('foto')(req, res, (error) => {
     if (error) {
       if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
@@ -251,21 +253,38 @@ router.put('/modificar/entidad', (req, res, next) => {
     entidadController.modificar(req, res, next);
   });
 });
-router.get('/listar/entidad', entidadController.listar);
-router.get('/listar/entidad/activos', entidadController.listarActivos);
-router.get('/obtener/entidad/:external',  entidadController.obtener);
+router.get('/listar/entidad', auth({ checkAdmin: true }),  entidadController.listar);
+router.get('/listar/entidad/activos',  auth({ checkAdmin: true }), entidadController.listarActivos);
+router.get('/obtener/entidad/:external', auth(), entidadController.obtener);
 
-router.get('/cuenta/:nombreCompleto',cuentaController.obtenerCuenta);
+router.get('/cuenta/:nombreCompleto',auth(),cuentaController.obtenerCuenta);
 
 
 /** ROL_ENTIDAD */
-router.get('/rol/entidad/listar', rolEntidadController.listar);
-router.post('/asignar/lideres', rolEntidadController.asignarLideres);
+router.get('/rol/entidad/listar', auth(),rolEntidadController.listar);
+router.post('/asignar/lideres',  auth({ checkAdmin: true }), rolEntidadController.asignarLideres);
 router.get('/rol/entidad/obtener/lider', rolEntidadController.obtenerLider);
-router.get('/rol/entidad/obtener/administrador', rolEntidadController.obtenerAdministrador);
+router.get('/rol/entidad/obtener/administrador',  auth({ checkAdmin: true }), rolEntidadController.obtenerAdministrador);
 
 /*    AUDIO  */
-router.put('/audio/:external_id', audioController.guardar);
-router.get('/audio/:external_id', audioController.obtener);
+router.put('/audio/:external_id', auth(),audioController.guardar);
+router.get('/audio/:external_id',auth(), audioController.obtener);
+
+/* CAMBIO CLAVE */
+router.put('/cuenta/clave/:external_id',auth(), [
+  body('clave_vieja', 'Ingrese una clave valido').exists().not().isEmpty(),
+  body('clave_nueva', 'Ingrese una clave valido').exists().not().isEmpty()
+], cuentaController.cambioClave)
+router.put('/cuenta/restablecer/clave/:external_id', [
+  body('clave_nueva', 'Ingrese una clave valido').exists().not().isEmpty()
+], cuentaController.cambioClaveSoloNueva)
+router.get('/cuenta/token/:external_id', auth({ checkAdmin: true }),  cuentaController.tokenCambioClave)
+router.put('/cuenta/validar',[
+  body('correo', 'Ingrese un correo valido').exists().not().isEmpty().isEmail()], cuentaController.validarCambioClave)
+
+/** PETICION */
+router.get('/peticion/:tipo', peticionController.listarPeticiones);
+router.get('/aceptarechazar/peticiones/:external/:estado/:motivo_rechazo/:id_rechazador', /*auth,*/ peticionController.aceptarRechazar);
+
 
 module.exports = router;  

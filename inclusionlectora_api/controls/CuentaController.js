@@ -8,6 +8,9 @@ const saltRounds = 8;
 
 let jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
+const esClaveValida = function (clave, claveUser) {
+    return bcrypt.compareSync(claveUser, clave);
+}
 class CuentaController {
 
     async sesion(req, res) {
@@ -41,9 +44,6 @@ var rol = await models.rol_entidad.findOne({
                     code: 400
                 })
 
-            var esClaveValida = function (clave, claveUser) {
-                return bcrypt.compareSync(claveUser, clave);
-            }
             
             if (!login.estado) {
                 return res.status(400).json({
@@ -75,7 +75,8 @@ var rol = await models.rol_entidad.findOne({
                             nombres: login.entidad.nombres,
                             apellidos: login.entidad.apellidos,
                             user: login.entidad,
-                            rol: rol.id_rol
+                            rol: rol.id_rol,
+                            external_cuenta: login.external_id,
                         },
                     },
                     code: 200
@@ -157,7 +158,179 @@ var rol = await models.rol_entidad.findOne({
             });
         }
     }    
+    async cambioClave(req, res) {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    msg: "FALTAN DATOS",
+                    code: 400,
+                    errors: errors.array()
+                });
+            }
+            const id_cuenta = req.params.external_id;
+            const cuenta = await models.cuenta.findOne({ where: { external_id: id_cuenta } });
+
+            if (!cuenta) {
+                return res.status(404).json({
+                    msg: "CUENTA NO ENCONTRADA",
+                    code: 404
+                });
+            }
+            const salt = bcrypt.genSaltSync(saltRounds);
+            if (esClaveValida(cuenta.clave, req.body.clave_vieja)) {
+                const claveHash_nueva = bcrypt.hashSync(req.body.clave_nueva, salt);
+                cuenta.clave = claveHash_nueva;
+                const cuantaActualizada = await cuenta.save();
+                if (!cuantaActualizada) {
+                    return res.status(400).json({ msg: "NO SE HAN MODIFICADO SUS DATOS, VUELVA A INTENTAR", code: 400 });
+                } else {
+                    return res.status(200).json({ msg: "CLAVE MODIFICADA CON ÉXITO", code: 200 });
+                }
+            } else {
+                return res.status(401).json({
+                    msg: "CLAVE INCORRECTA",
+                    code: 401
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Error en el servidor",
+                code: 500
+            });
+        }
+    }
+    async cambioClaveSoloNueva(req, res) {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    msg: "FALTAN DATOS",
+                    code: 400,
+                    errors: errors.array()
+                });
+            }
     
+            const id_cuenta = req.params.external_id;
+            const cuenta = await models.cuenta.findOne({ where: { external_id: id_cuenta } });
+    
+            if (!cuenta) {
+                return res.status(404).json({
+                    msg: "CUENTA NO ENCONTRADA",
+                    code: 404
+                });
+            }
+    
+            const salt = bcrypt.genSaltSync(saltRounds);
+            const claveHash_nueva = bcrypt.hashSync(req.body.clave_nueva, salt);
+            console.log('CLaves');
+            cuenta.clave = claveHash_nueva;
+            const cuentaActualizada = await cuenta.save();
+    
+            if (!cuentaActualizada) {
+                return res.status(400).json({ 
+                    msg: "NO SE HAN MODIFICADO SUS DATOS, VUELVA A INTENTAR", 
+                    code: 400 
+                });
+            } 
+            console.log('CLaves');
+                return res.status(200).json({ 
+                    msg: "CLAVE MODIFICADA CON ÉXITO", 
+                    code: 200 
+                });
+        
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Error en el servidor",
+                code: 500
+            });
+        }
+    }
+    
+
+    async tokenCambioClave(req, res) {
+        if (!req.params.external_id) {
+            return res.status(400).json({
+                msg: "FALTAN DATOS",
+                code: 400
+            });
+        } else {
+            const cuenta = await models.cuenta.findOne({ where: { external_id: req.params.external_id } });
+            if (cuenta) {
+                const tokenData = {
+                    external: cuenta.external_id,
+                    email: cuenta.correo,
+                    check: true
+                };
+    
+                require('dotenv').config();
+                const llave = process.env.KEY;
+                const token = jwt.sign(
+                    tokenData,
+                    llave,
+                    {
+                        expiresIn: '10m'
+                    });
+                return res.status(200).json({
+                    msg: "Token generado",
+                    info: {
+                        token: token
+                    },
+                    code: 200
+                })
+            }else{
+                return res.status(400).json({
+                    msg: "CUENTA NO ENCONTRADA",
+                    code: 400
+                });
+            }
+        }
+    }
+
+    async validarCambioClave(req, res) {
+        const transaction = await models.sequelize.transaction();
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    msg: "FALTAN DATOS",
+                    code: 400,
+                    errors: errors.array()
+                });
+            }
+            const cuenta = await models.cuenta.findOne({ where: { correo: req.body.correo, estado: "ACEPTADO" } });
+            if (!cuenta) {
+                return res.status(200).json({
+                    code: 200
+                });
+            } else {
+                var listar = await models.peticion.findOne({ where: { estado: 'ES', tipo: "CC", id_cuenta: cuenta.id } });
+                if (listar) {
+                    return res.status(200).json({
+                        code: 200, msg: "Ya existe una petición en espera"
+                    });
+                } else {
+                const peticion = {
+                    peticion: "Cambio de Clave",
+                    tipo: "CC",
+                    id_cuenta: cuenta.id
+                };
+                await models.peticion.create(peticion), { transaction };
+                await transaction.commit();
+                res.json({ code: 200 });}
+            }
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                msg: "Error en el servidor",
+                code: 500
+            });
+        }
+    }
+
 
 }
 module.exports = CuentaController;

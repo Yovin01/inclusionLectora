@@ -39,7 +39,10 @@ const MenuBar = () => {
                         {token && (
                             <>
                                 {idRol === '1' && (
+                                    <>
                                     <Nav.Link href="/configuracion" className="text-white">Configuraciones</Nav.Link>
+                                    <Nav.Link href="/peticiones/clave" className="text-white">Peticiones Claves</Nav.Link>
+                                    </>
                                 )}
                                 <Nav.Link href="/extraer/new" className="text-white">Extraer PDF</Nav.Link>
                                 <Nav.Link href="/dashboard" className="text-white">Documentos</Nav.Link>
@@ -60,8 +63,10 @@ const MenuBar = () => {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu align="end">
-                                <Dropdown.Item onClick={handleCerrarSesion}>Cerrar sesión</Dropdown.Item>
-                            </Dropdown.Menu>
+                            <Dropdown.Item href="/perfil">Perfil</Dropdown.Item>
+                            <Dropdown.Divider />
+                            <Dropdown.Item onClick={handleCerrarSesion}>Cerrar sesión</Dropdown.Item>
+                         </Dropdown.Menu>
                         </Dropdown>
                     )}
                 </Navbar.Collapse>
