@@ -269,7 +269,6 @@ router.get('/rol/entidad/obtener/administrador',  auth({ checkAdmin: true }), ro
 /*    AUDIO  */
 router.put('/audio/:external_id', auth(),audioController.guardar);
 router.get('/audio/:external_id',auth(), audioController.obtener);
-router.get('/audio2/:external_id',auth(), audioController.obtener);
 /* CAMBIO CLAVE */
 router.put('/cuenta/clave/:external_id',auth(), [
   body('clave_vieja', 'Ingrese una clave valido').exists().not().isEmpty(),
