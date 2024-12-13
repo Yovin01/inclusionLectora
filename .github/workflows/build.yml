@@ -1,0 +1,40 @@
+name: 02 Build pipeline
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    # Permisos necesarios para el trabajo
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+      
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      # Instalar dependencias
+      - name: Install dependencies
+        run: cd inclusionlectora_api 
+        run: npm install
+        run: cd ..
+        run: cd inclusionlectora_web
+        run: npm install
+      # Construir el proyecto
+      - name: Build project
+        run: npm start
+        run: cd ..
+        run: cd inclusionlectora_api
+        run: npm start
+
+
