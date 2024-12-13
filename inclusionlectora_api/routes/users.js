@@ -226,7 +226,7 @@ router.get('/documento/one/:external_id', auth(),documentoController.obtenerOneD
 router.delete('/documento/:external_id',auth(), documentoController.eliminar);
 router.get('/documento/entidad/:id_entidad/:nombre',auth(), documentoController.exist);
 
-router.get('/audio/descargar/:filename',auth(), (req, res) => {
+router.get('/audio/descargar/:filename', (req, res) => {
   const filePath = path.join(__dirname, '../public/audio/completo/', req.params.filename);  // Ajusta la ruta a tus necesidades
   res.download(filePath, (err) => {
       if (err) {

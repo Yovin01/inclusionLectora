@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         nombres: { type: DataTypes.STRING(20), defaultValue: "NO_DATA" },
         apellidos: { type: DataTypes.STRING(20), defaultValue: "NO_DATA" },
         fecha_nacimiento: { type: DataTypes.DATE},
-        telefono:  { type: DataTypes.STRING(20), defaultValue: "NO_DATA"}  
+        telefono:  { type: DataTypes.STRING(20), defaultValue: "NO_DATA", unique: true}  
     }, {
         freezeTableName: true
     });

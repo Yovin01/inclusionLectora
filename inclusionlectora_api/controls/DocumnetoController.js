@@ -46,7 +46,6 @@ const guardarAudioPorLotes = async (chunks, documentoNameCifrado, audioDir, batc
     return audioFilePaths;
 };
 
-
 class DocumentoController {
     async guardar(req, res) {
         let transaction = await models.sequelize.transaction();
