@@ -18,14 +18,30 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
+      # Step 2: Run SOOS SCA Analysis
       - name: SOOS SCA Analysis
         uses: soos-io/soos-sca-github-action@v2
         with:
-          project_name: "Yovin01/inclusionLectora" # Also you can use the var ${{ github.repository }}
+          project_name: ${{ github.repository }}
           output_format: "sarif"
           client_id: u4nekdizt
           api_key: NDg3MTcyZTAtZDMyYi00Y2VlLWEzZWEtMTE5MTUwMTc1ZjU5
+
+      # Step 3: Upload SARIF Results
+      - name: Upload SARIF Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: SARIF-Results
+          path: "**/*.sarif"
+      
+      # Step 4: Upload Test Results (if test results are available in 'test-results')
+      - name: Upload Test Results
+        if: success() || always() # Ensure this step runs even if tests fail
+        uses: actions/upload-artifact@v3
+        with:
+          name: Test-Results
+          path: test-results
