@@ -44,9 +44,15 @@ jobs:
       - name: Test inclusionlectora_web
         run: |
           cd inclusionlectora_web
-          npm start
+          npm test
 
       - name: Test inclusionlectora_api
         run: |
           cd inclusionlectora_api
-          npm start
+          npm test
+      # Subir resultados de pruebas como artefacto
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Test-Results
+          path: test-results
