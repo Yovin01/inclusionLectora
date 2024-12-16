@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "./node_modules/nodemon/bin/nodemon.js ./bin/www"
   },
   "keywords": [],
@@ -20,6 +20,7 @@
     "gtts": "^0.2.1",
     "http-errors": "~1.8.1",
     "jade": "^1.11.0",
+    "jest": "^29.7.0",
     "jsonwebtoken": "^9.0.0",
     "morgan": "~1.10.0",
     "multer": "^1.4.5-lts.1",
