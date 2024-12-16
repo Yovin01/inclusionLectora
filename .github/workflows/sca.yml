@@ -10,7 +10,7 @@ permissions:
   security-events: write
 
 jobs:
-  build:
+  sca:
     runs-on: ubuntu-latest
 
     steps:

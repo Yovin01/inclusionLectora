@@ -111,7 +111,6 @@ class EntidadController {
                 const salt = bcrypt.genSaltSync(saltRounds);
                 return bcrypt.hashSync(clave, salt);
             };
-    //Foto
             const fotoFilename = req.file ? req.file.filename : 'USUARIO_ICONO.png';
     
             const data = {
