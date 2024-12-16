@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-    # Permisos necesarios para el trabajo
     permissions:
       contents: read
       issues: read
@@ -17,29 +16,37 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js 22
+
+      - name: Set up Node.js 22 for inclusionlectora_api
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: inclusionlectora_api/package-lock.json
 
-      # Instalar dependencias
-      - name: Install dependencies for API
+      - name: Install dependencies for inclusionlectora_api
         run: |
-            cd inclusionlectora_api
-            npm install
+          cd inclusionlectora_api
+          npm install
 
-      - name: Install dependencies for Web
+      - name: Set up Node.js 22 for inclusionlectora_web
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: inclusionlectora_web/package-lock.json
+
+      - name: Install dependencies for inclusionlectora_web
         run: |
-            cd inclusionlectora_web
-            npm install
+          cd inclusionlectora_web
+          npm install
 
-      
-      # Construir y probar el proyecto
-      - name: Test project
+      - name: Test inclusionlectora_web
         run: |
           cd inclusionlectora_web
           npm test
-          cd ..
+
+      - name: Test inclusionlectora_api
+        run: |
           cd inclusionlectora_api
           npm test
