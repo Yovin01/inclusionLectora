@@ -1,4 +1,4 @@
-name: SOOS SCA SARIF 
+name: 03 SOOS SCA SARIF 
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: SOOS SCA Analysis
         uses: soos-io/soos-sca-github-action@v2

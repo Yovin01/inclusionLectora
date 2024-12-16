@@ -1,0 +1,71 @@
+name: 05 License Compliance
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  license-finder:
+    runs-on: ubuntu-latest
+    steps:
+      # Paso 1: Checkout del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Paso 2: Configuración de Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # Ajusta según tu versión requerida
+
+      # Paso 3: Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # Paso 4: Ejecutar License Finder
+      - name: Run License Finder
+        run: |
+          npx license-finder --json > license_finder_report.json
+        env:
+          CI: true
+
+      # Paso 5: Validar licencias permitidas
+      - name: Validate licenses
+        run: |
+          permitted_licenses="MIT, Apache-2.0"
+          approved_dependencies="junit,junit-jupiter"
+          node <<EOF
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('license_finder_report.json'));
+          const permitted = new Set(permitted_licenses.split(',').map(s => s.trim()));
+          const approved = new Set(approved_dependencies.split(',').map(s => s.trim()));
+          
+          const errors = [];
+          report.forEach(dep => {
+              const { name, licenses } = dep;
+              if (!approved.has(name) && !licenses.some(lic => permitted.has(lic))) {
+                  errors.push(`Dependency ${name} has unapproved license: ${licenses.join(', ')}`);
+              }
+          });
+          
+          if (errors.length > 0) {
+              console.error(errors.join('\n'));
+              process.exit(1);
+          }
+          EOF
+
+      # Paso 6: Publicar resultados en formato JUnit
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2.2.0
+        if: always()
+        with:
+          junit_files: "license_finder_report.xml"
+          check_name: "License Compliance Check"
+
+      # Paso 7: Subir el informe de revisión de dependencias
+      - name: Upload Dependency Review Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-finder-report
+          path: ${{ github.workspace }}/license_finder_report.json
