@@ -24,13 +24,16 @@ jobs:
           cache: 'npm'
 
       # Instalar dependencias
-      - name: Install dependencies
+      - name: Install dependencies for API
         run: |
-          cd inclusionlectora_api
-          npm install
-          cd ..
-          cd inclusionlectora_web
-          npm install
+            cd inclusionlectora_api
+            npm install
+
+      - name: Install dependencies for Web
+        run: |
+            cd inclusionlectora_web
+            npm install
+
       
       # Construir y probar el proyecto
       - name: Test project
