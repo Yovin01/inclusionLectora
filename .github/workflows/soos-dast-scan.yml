@@ -40,7 +40,7 @@ jobs:
         with:
           client_id: ${{ secrets.SOOS_CLIENT_ID }}
           api_key: ${{ secrets.SOOS_API_KEY }}
-          project_name: "<YOUR-PROJECT-NAME>"
+          project_name: "inclusionLectora"
           scan_mode: "baseline"
           target_url: "https://www.example.com/"
           output_format: "sarif"
