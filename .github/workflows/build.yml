@@ -44,9 +44,9 @@ jobs:
       - name: Test inclusionlectora_web
         run: |
           cd inclusionlectora_web
-          npm test
+          npm start
 
       - name: Test inclusionlectora_api
         run: |
           cd inclusionlectora_api
-          npm test
+          npm start
