@@ -12,7 +12,7 @@ jobs:
       issues: read
       checks: write
       pull-requests: write
-      
+
     runs-on: ubuntu-latest
 
     steps:
@@ -25,16 +25,18 @@ jobs:
 
       # Instalar dependencias
       - name: Install dependencies
-        run: cd inclusionlectora_api 
-        run: npm install
-        run: cd ..
-        run: cd inclusionlectora_web
-        run: npm install
-      # Construir el proyecto
-      - name: Build project
-        run: npm test
-        run: cd ..
-        run: cd inclusionlectora_api
-        run: npm test
-
-
+        run: |
+          cd inclusionlectora_api
+          npm install
+          cd ..
+          cd inclusionlectora_web
+          npm install
+      
+      # Construir y probar el proyecto
+      - name: Test project
+        run: |
+          cd inclusionlectora_web
+          npm test
+          cd ..
+          cd inclusionlectora_api
+          npm test
