@@ -27,5 +27,5 @@ jobs:
         with:
           project_name: "Yovin01/inclusionLectora" # Also you can use the var ${{ github.repository }}
           output_format: "sarif"
-          client_id: ${{u4nekdizt}}
-          api_key: ${{ secrets.SOOS_API_KEY }}
+          client_id: u4nekdizt
+          api_key: NDg3MTcyZTAtZDMyYi00Y2VlLWEzZWEtMTE5MTUwMTc1ZjU5
