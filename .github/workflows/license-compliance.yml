@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+          cache-dependency-path: inclusionlectora_api/package-lock.json
+          
 
       # Instalar dependencias
       - name: Install dependencies api
@@ -30,7 +32,7 @@ jobs:
         run:  |
           cd inclusionlectora_api
           npm install -g license-checker
-          
+
       # Ejecutar análisis de licencias
       - name: Run License Compliance Check api
         id: license-check
