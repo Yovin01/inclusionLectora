@@ -30,24 +30,12 @@ jobs:
         run:  |
           cd inclusionlectora_api
           npm install -g license-checker
-
-  
-      - name: Install dependencies api
-        run: |
-          cd inclusionlectora_web
-          npm install
-
-      # Instalar license-checker
-      - name: Install License Checker api
-        run: |
-          cd inclusionlectora_web
-          npm install -g license-checker
-
+          
       # Ejecutar análisis de licencias
       - name: Run License Compliance Check api
         id: license-check
         run: |
-          cd inclusionlectora_web
+          cd inclusionlectora_api
           license-checker --production --json > license_report.json
           echo "License compliance check completed"
 
