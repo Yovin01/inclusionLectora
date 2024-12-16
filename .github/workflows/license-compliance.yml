@@ -19,7 +19,6 @@ jobs:
           node-version: 22
           cache: 'npm'
           cache-dependency-path: inclusionlectora_api/package-lock.json
-          
 
       # Instalar dependencias
       - name: Install dependencies api
@@ -44,7 +43,7 @@ jobs:
       # Validar contra licencias permitidas
       - name: Validate Licenses
         run: |
-            cd inclusionlectora_web
+            cd inclusionlectora_api
             node -e "
             const fs = require('fs');
             const ignoredPackages = ['uglify-js', 'tslib'];
