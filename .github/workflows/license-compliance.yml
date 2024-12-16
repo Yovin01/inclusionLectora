@@ -47,7 +47,7 @@ jobs:
       - name: Run License Compliance Check api
         id: license-check
         run: |
-           cd inclusionlectora_web
+          cd inclusionlectora_web
           license-checker --production --json > license_report.json
           echo "License compliance check completed"
 
