@@ -43,7 +43,6 @@ jobs:
       # Validar contra licencias permitidas
       - name: Validate Licenses
         run: |
-            cd inclusionlectora_api
             node -e "
             const fs = require('fs');
             const ignoredPackages = ['uglify-js', 'tslib'];
