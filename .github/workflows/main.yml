@@ -26,5 +26,5 @@ jobs:
   sca:
     needs: build
     name: SCA
-    uses: ./.github/workflows/sca.yml
+    uses: ./.github/workflows/soos-dast-scan.yml
     secrets: inherit
