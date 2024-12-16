@@ -1,10 +1,6 @@
 name: 03 SOOS SCA SARIF 
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
   workflow_call:
 
