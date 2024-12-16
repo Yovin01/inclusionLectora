@@ -1,4 +1,4 @@
-name: SOOS SCA SARIF Example CI
+name: SOOS SCA SARIF 
 
 on:
   push:
