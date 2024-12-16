@@ -26,10 +26,10 @@ jobs:
       # Instalar dependencias
       - name: Install dependencies
         run: cd inclusionlectora_api 
-        run: npm ci
+        run: npm install
         run: cd ..
         run: cd inclusionlectora_web
-        run: npm ci
+        run: npm install
       # Construir el proyecto
       - name: Build project
         run: npm test
