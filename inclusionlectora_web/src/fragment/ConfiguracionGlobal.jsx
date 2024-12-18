@@ -37,6 +37,8 @@ const ConfiguracionGlobal = () => {
 
     // Manejar la eliminación de documentos
     const handleEliminarTodos = () => {
+        let swalInputValue = ""; // Estado temporal para manejar el valor ingresado
+
         swal({
             title: "Confirmar eliminación",
             text: "Por favor, ingrese la clave para confirmar la eliminación de todos los documentos. Esta acción no se puede deshacer.",
@@ -46,20 +48,46 @@ const ConfiguracionGlobal = () => {
                     placeholder: "Ingrese la clave",
                     type: "password",
                     maxLength: 100,
+                    oninput: function (e) {
+                        swalInputValue = e.target.value;
+                        const eliminarButton = document.querySelector(".swal-button--confirm");
+                        if (eliminarButton) {
+                            eliminarButton.disabled = !swalInputValue.trim();
+                        }
+                    },
                 },
             },
-            buttons: ["Cancelar", "Eliminar"],
+            buttons: {
+                cancel: {
+                    text: "Cancelar",
+                    visible: true,
+                    className: "btn-negativo",
+                },
+                confirm: {
+                    text: "Eliminar",
+                    visible: true,
+                    className: "btn-positivo text-white",
+                    closeModal: false,
+                },
+            },
         }).then(async (clave) => {
-            if (clave) {
+            if (clave && clave.trim()) {
                 const data = { key: clave };
                 const response = await peticionPost(getToken(), `documentos/eliminar/todos`, data);
                 if (response.code === 200) {
                     mensajes('Eliminación completada con éxito', 'success');
+                    swal.close(); // Cerrar modal en caso de éxito
                 } else {
                     mensajes(`Error al eliminar documentos: ${response.msg}`, 'error');
                 }
             }
         });
+
+        // Deshabilitar el botón inicialmente
+        setTimeout(() => {
+            const eliminarButton = document.querySelector(".swal-button--confirm");
+            if (eliminarButton) eliminarButton.disabled = true;
+        }, 0);
     };
 
     return (
@@ -91,9 +119,9 @@ const ConfiguracionGlobal = () => {
                                 style={{ maxWidth: '150px' }}
                             />
                           
-                            <button className="btn-positivo text-white" type="submit"  onClick={handleActualizarTamano}>
-                            Cambiar tamaño
-                                    </button>
+                            <button className="btn-positivo text-white" type="submit" onClick={handleActualizarTamano}>
+                                Cambiar tamaño
+                            </button>
                         </div>
 
                         {/* Tamaño actual */}
@@ -106,15 +134,17 @@ const ConfiguracionGlobal = () => {
 
                         {/* Eliminar documentos */}
                         <div className="d-flex align-items-center w-100">
-                            <div className="me-3">
+                        <div className="me-3">
                                 <strong>Eliminación de documentos:</strong>
                                 <br />
-                                <small className="text-muted">Confirme para eliminar todos los documentos.</small>
+                                <small className="text-danger fw-bold">
+                                    Esta acción eliminará todos los archivos del sistema. 
+                                    Proceda con precaución.
+                                </small>
                             </div>
-                            <button className="btn-positivo text-white" type="submit"  onClick={handleEliminarTodos}>
-                            Eliminar Archivos
-                                    </button>
-                          
+                            <button className="btn-positivo text-white" type="submit" onClick={handleEliminarTodos}>
+                                Eliminar Archivos
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -33,18 +33,18 @@ class CuentaController {
                     as: "entidad"
                 }]
             });
-var rol = await models.rol_entidad.findOne({
-                where: {
-                    id_entidad: login.entidad.id
-                }
-});
-            if (login === null)
+            if (!login)
                 return res.status(400).json({
                     msg: "CUENTA NO ENCONTRADA",
                     code: 400
                 })
+            var rol = await models.rol_entidad.findOne({
+                where: {
+                    id_entidad: login.entidad.id
+                }
+            });
 
-            
+
             if (!login.estado) {
                 return res.status(400).json({
                     msg: "CUENTA DESACTIVADA",
@@ -117,21 +117,21 @@ var rol = await models.rol_entidad.findOne({
                 [Op.or]: [
                     {
                         nombres: {
-                            [Op.like]: `%${nombreCompleto}%` 
+                            [Op.like]: `%${nombreCompleto}%`
                         }
                     },
                     {
                         apellidos: {
-                            [Op.like]: `%${nombreCompleto}%` 
+                            [Op.like]: `%${nombreCompleto}%`
                         }
                     }
                 ]
             };
-            var cuentasEncontradas = await models.entidad.findAll({ 
+            var cuentasEncontradas = await models.entidad.findAll({
                 where: condicionesBusqueda,
                 limit: 10 // Limitar los resultados a 10
             });
-            
+
             if (cuentasEncontradas.length === 0) {
                 return res.status(404).json({
                     msg: "NO SE ENCONTRARON USUARIOS",
@@ -144,7 +144,7 @@ var rol = await models.rol_entidad.findOne({
                 id: entidad.id,
                 foto: entidad.foto
             }));
-    
+
             return res.status(200).json({
                 msg: "Usuarios Encontrados",
                 info: cuentasInfo,
@@ -157,7 +157,7 @@ var rol = await models.rol_entidad.findOne({
                 code: 500
             });
         }
-    }    
+    }
     async cambioClave(req, res) {
         try {
             const errors = validationResult(req);
@@ -211,35 +211,35 @@ var rol = await models.rol_entidad.findOne({
                     errors: errors.array()
                 });
             }
-    
+
             const id_cuenta = req.params.external_id;
             const cuenta = await models.cuenta.findOne({ where: { external_id: id_cuenta } });
-    
+
             if (!cuenta) {
                 return res.status(404).json({
                     msg: "CUENTA NO ENCONTRADA",
                     code: 404
                 });
             }
-    
+
             const salt = bcrypt.genSaltSync(saltRounds);
             const claveHash_nueva = bcrypt.hashSync(req.body.clave_nueva, salt);
             console.log('CLaves');
             cuenta.clave = claveHash_nueva;
             const cuentaActualizada = await cuenta.save();
-    
+
             if (!cuentaActualizada) {
-                return res.status(400).json({ 
-                    msg: "NO SE HAN MODIFICADO SUS DATOS, VUELVA A INTENTAR", 
-                    code: 400 
+                return res.status(400).json({
+                    msg: "NO SE HAN MODIFICADO SUS DATOS, VUELVA A INTENTAR",
+                    code: 400
                 });
-            } 
+            }
             console.log('CLaves');
-                return res.status(200).json({ 
-                    msg: "CLAVE MODIFICADA CON ÉXITO", 
-                    code: 200 
-                });
-        
+            return res.status(200).json({
+                msg: "CLAVE MODIFICADA CON ÉXITO",
+                code: 200
+            });
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({
@@ -248,7 +248,7 @@ var rol = await models.rol_entidad.findOne({
             });
         }
     }
-    
+
 
     async tokenCambioClave(req, res) {
         if (!req.params.external_id) {
@@ -264,7 +264,7 @@ var rol = await models.rol_entidad.findOne({
                     email: cuenta.correo,
                     check: true
                 };
-    
+
                 require('dotenv').config();
                 const llave = process.env.KEY;
                 const token = jwt.sign(
@@ -280,7 +280,7 @@ var rol = await models.rol_entidad.findOne({
                     },
                     code: 200
                 })
-            }else{
+            } else {
                 return res.status(400).json({
                     msg: "CUENTA NO ENCONTRADA",
                     code: 400
@@ -312,14 +312,15 @@ var rol = await models.rol_entidad.findOne({
                         code: 200, msg: "Ya existe una petición en espera"
                     });
                 } else {
-                const peticion = {
-                    peticion: "Cambio de Clave",
-                    tipo: "CC",
-                    id_cuenta: cuenta.id
-                };
-                await models.peticion.create(peticion), { transaction };
-                await transaction.commit();
-                res.json({ code: 200 });}
+                    const peticion = {
+                        peticion: "Cambio de Clave",
+                        tipo: "CC",
+                        id_cuenta: cuenta.id
+                    };
+                    await models.peticion.create(peticion), { transaction };
+                    await transaction.commit();
+                    res.json({ code: 200 });
+                }
             }
 
         } catch (error) {

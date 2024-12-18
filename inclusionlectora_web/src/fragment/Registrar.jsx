@@ -9,13 +9,16 @@ import { useForm } from 'react-hook-form';
 import { borrarSesion, getToken } from '../utilities/Sessionutil';
 import mensajes from '../utilities/Mensajes';
 import swal from 'sweetalert';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const Registrar = () => {
-    const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const { register, handleSubmit, watch, formState: { errors },setValue } = useForm();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordMatch, setPasswordMatch] = useState(null);
+    const [uploadedPhoto, setUploadedPhoto] = useState(null);
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -48,15 +51,26 @@ const Registrar = () => {
             if (info.code !== 200) {
                 mensajes(info.msg, 'error', 'Error');
                 borrarSesion();
-                navigate('/login');
             } else {
                 mensajes(info.msg);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1200);
+                navigate('/login');
             }
         });
     };
+    
+    const handlePhotoChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setUploadedPhoto(file);
+        }
+    };
+
+    const handleRemovePhoto = () => {
+        setUploadedPhoto(null);
+        setValue("foto", null);
+    };
+
+
 
     const handleCancelClick = () => {
         swal({
@@ -84,7 +98,7 @@ const Registrar = () => {
                 <h2 className="text-center mb-4 titulo-primario">Inclusión Lectora</h2>
                 <form className="row g-3 p-2" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
                     <div className="col-md-6">
-                        <label htmlFor="nombres" className="form-label">Ingrese sus nombres</label>
+                        <label htmlFor="nombres" className="form-label">Ingrese sus nombres *</label>
                         <input
                             type="text"
                             {...register("nombres", {
@@ -103,7 +117,7 @@ const Registrar = () => {
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="apellidos" className="form-label">Ingrese sus apellidos</label>
+                        <label htmlFor="apellidos" className="form-label">Ingrese sus apellidos *</label>
                         <input
                             type="text"
                             {...register("apellidos", {
@@ -122,7 +136,7 @@ const Registrar = () => {
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="fecha_nacimiento" className="form-label">Ingrese su fecha de nacimiento</label>
+                        <label htmlFor="fecha_nacimiento" className="form-label">Ingrese su fecha de nacimiento *</label>
                         <input type="date"
                             {...register("fecha_nacimiento", {
                                 required: {
@@ -143,7 +157,7 @@ const Registrar = () => {
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="telefono" className="form-label">Ingrese su telefono</label>
+                        <label htmlFor="telefono" className="form-label">Ingrese su telefono *</label>
                         <input type="text"
                             {...register("telefono", {
                                 required: {
@@ -169,7 +183,7 @@ const Registrar = () => {
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="correo" className="form-label">Ingrese su correo electrónico</label>
+                        <label htmlFor="correo" className="form-label">Ingrese su correo electrónico *</label>
                         <input type="email"
                             {...register("correo", {
                                 required: {
@@ -187,7 +201,7 @@ const Registrar = () => {
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="clave" className="form-label">Ingrese su clave</label>
+                        <label htmlFor="clave" className="form-label">Ingrese su clave *</label>
                         <div className="input-group">
                             <input
                                 type={showPassword ? "text" : "password"}
@@ -201,7 +215,7 @@ const Registrar = () => {
                                         message: "La contraseña debe tener al menos 5 caracteres"
                                     },
                                     pattern: {
-                                        value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
+                                        value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=[\]{}|\\:";'?/.,`~]+$/,
                                         message: "La clave debe contener al menos una letra y un número"
                                     }
                                 })}
@@ -219,19 +233,28 @@ const Registrar = () => {
                     </div>
 
                     <div className="col-md-6">
-                        <label htmlFor="foto" className="form-label">Seleccionar foto</label>
-                        <input type="file"
-                            {...register("foto", {
-                                required: {
-                                    message: "Seleccione una foto"
-                                }
-                            })}
+                        <label htmlFor="foto" className="form-label d-flex align-items-center">Foto</label>
+                        <input
+                            type="file"
+                            {...register("foto")}
+                            onChange={handlePhotoChange}
                             className="form-control"
+                            accept="image/*"
                         />
-                        {errors.foto && <span className='mensajeerror'>{errors.foto.message}</span>}
+                        {uploadedPhoto && (
+                            <div className="d-flex align-items-center mt-3 justify-content-center">
+                                <button
+                                    type="button"
+                                    className="btn btn-danger btn-sm btn-mini"
+                                    onClick={handleRemovePhoto}
+                                >
+                                    <FontAwesomeIcon icon={faTrash} /> Eliminar foto
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <div className="col-md-6">
-                        <label htmlFor="confirmPassword" className="form-label">Confirme su clave</label>
+                        <label htmlFor="confirmPassword" className="form-label">Confirme su clave *</label>
                         <div className="input-group">
                             <input
                                 type={showPassword ? "text" : "password"}

@@ -57,7 +57,7 @@ class DocumentoController {
             const pdfData = await pdfParse(fileBuffer);
 
             // Eliminar los saltos de línea y espacion duplicados del texto plano y caracteres repetitivos
-            let textoPlano = pdfData.text.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ');
+            let textoPlano = pdfData.text.replace(/\r?\n/g, ' ').replace(/\s+/g, ' '.replace(/(.)\1{5,}/g, '$1$1$1$1$1'));
 
             const txtFileName = documentoNameCifrado.replace(/\.pdf$/, '.txt');
             const carpetaName = documentoNameCifrado.replace(/\.pdf$/, '');
