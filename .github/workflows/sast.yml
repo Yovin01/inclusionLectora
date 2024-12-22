@@ -75,5 +75,6 @@ jobs:
       # Subir resultados de ESLint como SARIF
       - name: Upload ESLint SARIF
         uses: github/codeql-action/upload-sarif@v3
+        run:  cd inclusionlectora_api
         with:
-          sarif_file: ./eslint-results.json
+          sarif_file: eslint-results.json
