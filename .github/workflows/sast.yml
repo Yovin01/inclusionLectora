@@ -26,7 +26,10 @@ jobs:
 
       # Instalar dependencias
       - name: Install Dependencies
-        run: npm install
+
+        run: |
+          cd inclusionlectora_api
+          npm install
 
       # Realizar el análisis de CodeQL
       - name: CodeQL Analysis
@@ -46,7 +49,7 @@ jobs:
     steps:
       # Clonar el repositorio
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Instalar ESLint
       - name: Install ESLint
