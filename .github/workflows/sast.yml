@@ -50,16 +50,20 @@ jobs:
 
       # Instalar ESLint
       - name: Install ESLint
-        run: npm install eslint --save-dev
+        run: |
+          cd inclusionlectora_api
+          npm install eslint --save-dev
 
       # Ejecutar ESLint y generar archivo JSON
       - name: Run ESLint
         run: |
+          cd inclusionlectora_api
           npx eslint . --format json -o eslint-results.json || true
 
       # Verificar que el archivo de resultados exista
       - name: Check ESLint Results
         run: |
+          cd inclusionlectora_api
           if [ ! -f eslint-results.json ]; then
             echo "No ESLint results found!";
             exit 1;
