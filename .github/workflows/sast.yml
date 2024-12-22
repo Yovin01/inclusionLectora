@@ -76,4 +76,4 @@ jobs:
       - name: Upload ESLint SARIF
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: ./inclusionlectora_api/eslint-results.json
+          sarif_file: ./eslint-results.json
