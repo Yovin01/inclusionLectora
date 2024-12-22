@@ -65,7 +65,6 @@ class DocumentoController {
             fs.writeFileSync(txtFilePath, textoPlano);
 
             const audioDir = path.join(__dirname, `../public/audio/partes/${carpetaName}`);
-
             // Recorta el nombre si tiene más de 80 caracteres
             if (req.body.nombre.length > 80) {
                 req.body.nombre = req.body.nombre.substring(0, 76) + ".pdf";
