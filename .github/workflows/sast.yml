@@ -1,42 +1,3 @@
-name: 04 SAST
-
-on:
-  workflow_dispatch:
-  workflow_call:
-
-jobs:
-  SAST-CodeQL:
-    name: Build and SAST CodeQL
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-      # Clonar el repositorio
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Inicializar CodeQL para JavaScript
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: "javascript"
-
-      # Instalar dependencias
-      - name: Install Dependencies
-
-        run: |
-          cd inclusionlectora_api
-          npm install
-
-      # Realizar el análisis de CodeQL
-      - name: CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "/language:javascript"
-
   sast-eslint:
     name: SAST ESLint
     needs: [SAST-CodeQL]
@@ -72,9 +33,13 @@ jobs:
             exit 1;
           fi
 
+      # Inspeccionar la estructura de directorios para debug
+      - name: List Files in Directory
+        run: |
+          ls -R inclusionlectora_api
+
       # Subir resultados de ESLint como SARIF
       - name: Upload ESLint SARIF
         uses: github/codeql-action/upload-sarif@v3
-        run: cd inclusionlectora_api
         with:
-          sarif_file: eslint-results.json
+          sarif_file: inclusionlectora_api/eslint-results.json
