@@ -1,5 +1,4 @@
 name: 05 License Compliance
-
 on:
   workflow_dispatch:
   workflow_call:
@@ -8,11 +7,9 @@ jobs:
   license-finder:
     runs-on: ubuntu-latest
     steps:
-      # Clonar el repositorio
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Configurar Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -20,19 +17,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: inclusionlectora_api/package-lock.json
 
-      # Instalar dependencias
       - name: Install dependencies api
         run: |
           cd inclusionlectora_api
           npm install
 
-      # Instalar license-checker
       - name: Install License Checker
         run:  |
           cd inclusionlectora_api
           npm install -g license-checker
 
-      # Ejecutar análisis de licencias
       - name: Run License Compliance Check api
         id: license-check
         run: |
@@ -40,12 +34,10 @@ jobs:
           license-checker --production --json > license_report.json
           echo "License compliance check completed"
 
-      # Validar licencias (aceptar todas por defecto)
       - name: Validate Licenses
         run: |
           echo "All licenses are acceptable."
           
-      # Subir reporte de licencias como artefacto
       - name: Upload License Report
         if: always()
         uses: actions/upload-artifact@v3

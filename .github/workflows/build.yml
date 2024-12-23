@@ -50,7 +50,7 @@ jobs:
         run: |
           cd inclusionlectora_api
           npm test
-      # Subir resultados de pruebas como artefacto
+          
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
         with:
