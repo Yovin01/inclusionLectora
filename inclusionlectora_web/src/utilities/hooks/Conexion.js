@@ -86,9 +86,7 @@ export const GuardarArchivos = async (data, key, urls) => {
         method: "POST",
         headers: headers, 
         body: data,
-    };
-
-    try {
+    };  
         const response = await fetch(URL_BACKEND + urls, requestOptions);
         const contentType = response.headers.get("content-type");
         const textResponse = await response.text();
@@ -99,10 +97,6 @@ export const GuardarArchivos = async (data, key, urls) => {
             throw new Error("La respuesta del servidor no es JSON: " + textResponse);
         }
         
-
-    } catch (error) {
-        throw error;
-    }
 };
 
 
@@ -116,15 +110,12 @@ export const ActualizarImagenes = async (data, key, urls) => {
         headers: headers,
         body: data, 
     };
-    try {
         const response = await fetch(URL_BACKEND + urls, requestOptions);
 
         const datos = await response.json();
 
         return datos;
-    } catch (error) {
-        throw error;
-    }
+
 }
 export const peticionDelete = async (key, URL) => {
     const headers = {
@@ -144,7 +135,7 @@ export const ObtenerPost = async (key, url, bodyData) => {
         "X-API-TOKEN": key
     };
 
-    try {
+
         const response = await fetch(`${URL}/${url}`, {
             method: "POST",
             headers: headers,
@@ -160,8 +151,4 @@ export const ObtenerPost = async (key, url, bodyData) => {
             throw new Error(`La respuesta no es un JSON válido: ${text}`);
         }
         return datos;
-
-    } catch (error) {
-        throw error;
-    }
 }

@@ -127,7 +127,6 @@ const Extractor = () => {
                 } else {
                     setAudioComplete(`${URLBASE}audio/completo/${info.info.nombre}.mp3`);
                     setLoading(false);
-                    playSound('/audio/listo.mp3');
                     mensajes("Documento guardado con éxito");
                     navegation(`/extraer/${info.info}`);
                 }
@@ -192,12 +191,14 @@ const Extractor = () => {
                                     </header>
                                     <div className="card-body">
                                         <div className="audio-container">
-                                            <audio
-                                                ref={audioRef}
-                                                src={audioComplete}
-                                                controls
-                                                style={{ width: '70%' }}
-                                            />
+                                        <audio
+    ref={audioRef}
+    src={audioComplete}
+    controls
+    autoPlay
+    style={{ width: '70%' }}
+/>
+
                                         </div>
 
                                         <div className="audio-controls">
