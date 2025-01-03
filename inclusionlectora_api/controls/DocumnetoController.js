@@ -132,7 +132,11 @@ class DocumentoController {
                     const txtFileName = req.file.filename.replace(/\.pdf$/, '.txt');
                     fs.unlinkSync(path.join(__dirname, '../public/documentos', txtFileName));
 
-                    const audioDir = path.join(__dirname, `../public/audio/partes/${req.file.filename.replace(/\.pdf$/, '')}`);
+                    const SAFE_ROOT = path.resolve(__dirname, '../public/audio/partes');
+                    const audioDir = path.resolve(SAFE_ROOT, req.file.filename.replace(/\.pdf$/, ''));
+                    if (!audioDir.startsWith(SAFE_ROOT)) {
+                        throw new Error('Invalid audio directory path');
+                    }
                     if (fs.existsSync(audioDir)) {
                         fs.rmdirSync(audioDir, { recursive: true });
                         console.log(`Carpeta de audio eliminada: ${audioDir}`);
