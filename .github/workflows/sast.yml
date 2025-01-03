@@ -4,8 +4,8 @@ on:
   workflow_call:
 
 jobs:
-  SAST-CodeQL:
-    name: Build and SAST CodeQL
+  SAST-CodeQL-API:
+    name: Build and SAST CodeQL for API
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -22,37 +22,47 @@ jobs:
           languages: "javascript"
           path: "inclusionlectora_api"
 
+      - name: Install Dependencies for API
+        run: |
+          cd inclusionlectora_api
+          npm install
+
+      - name: CodeQL Analysis for API
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:javascript-api"
+
+  SAST-CodeQL-Web:
+    name: Build and SAST CodeQL for Web
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Initialize CodeQL for Web
         uses: github/codeql-action/init@v2
         with:
           languages: "javascript"
           path: "inclusionlectora_web"
 
-      - name: Install Dependencies for API
-        run: |
-          cd inclusionlectora_api
-          npm install
-
       - name: Install Dependencies for Web
         run: |
           cd inclusionlectora_web
           npm install
 
-      - name: CodeQL Analysis for API
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "/language:javascript"
-          path: "inclusionlectora_api"
-
       - name: CodeQL Analysis for Web
         uses: github/codeql-action/analyze@v2
         with:
-          category: "/language:javascript"
-          path: "inclusionlectora_web"
+          category: "/language:javascript-web"
 
   sast-eslint:
     name: SAST ESLint
-    needs: [SAST-CodeQL]
+    needs: [SAST-CodeQL-API, SAST-CodeQL-Web]
     runs-on: ubuntu-latest
     permissions:
       actions: read
