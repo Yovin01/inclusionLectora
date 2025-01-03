@@ -1,5 +1,4 @@
 name: 04 SAST
-
 on:
   workflow_dispatch:
   workflow_call:
@@ -17,20 +16,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
+      - name: Initialize CodeQL for API
         uses: github/codeql-action/init@v2
         with:
           languages: "javascript"
+          path: "inclusionlectora_api"
 
-      - name: Install Dependencies
+      - name: Initialize CodeQL for Web
+        uses: github/codeql-action/init@v2
+        with:
+          languages: "javascript"
+          path: "inclusionlectora_web"
+
+      - name: Install Dependencies for API
         run: |
           cd inclusionlectora_api
           npm install
 
-      - name: CodeQL Analysis
+      - name: Install Dependencies for Web
+        run: |
+          cd inclusionlectora_web
+          npm install
+
+      - name: CodeQL Analysis for API
         uses: github/codeql-action/analyze@v2
         with:
           category: "/language:javascript"
+          path: "inclusionlectora_api"
+
+      - name: CodeQL Analysis for Web
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:javascript"
+          path: "inclusionlectora_web"
 
   sast-eslint:
     name: SAST ESLint
@@ -45,22 +63,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install ESLint
+      - name: Install ESLint for API
         run: |
           cd inclusionlectora_api
           npm install eslint --save-dev
 
-      - name: Run ESLint
+      - name: Run ESLint for API
         run: |
           cd inclusionlectora_api
-          npx eslint . --format json -o eslint-results.json || true
+          npx eslint . --format json -o eslint-results-api.json || true
 
-      - name: List Files in Directory
+      - name: Install ESLint for Web
         run: |
-          ls -R inclusionlectora_api
+          cd inclusionlectora_web
+          npm install eslint --save-dev
 
-      - name: Upload ESLint JSON
+      - name: Run ESLint for Web
+        run: |
+          cd inclusionlectora_web
+          npx eslint . --format json -o eslint-results-web.json || true
+
+      - name: Upload ESLint Results for API
         uses: actions/upload-artifact@v3
         with:
-          name: eslint-results-json
-          path: eslint-results.json
+          name: eslint-results-api-json
+          path: inclusionlectora_api/eslint-results-api.json
+
+      - name: Upload ESLint Results for Web
+        uses: actions/upload-artifact@v3
+        with:
+          name: eslint-results-web-json
+          path: inclusionlectora_web/eslint-results-web.json

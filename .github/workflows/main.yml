@@ -1,12 +1,10 @@
 name: 01 - Main CI
-
 on:
   push:
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
   workflow_dispatch:
-
 permissions:
   contents: read
   issues: read
@@ -15,7 +13,6 @@ permissions:
   actions: read
   security-events: write
   packages: write
-
 
 jobs:
   build:
@@ -40,4 +37,3 @@ jobs:
     name: SAST
     uses: ./.github/workflows/sast.yml
     secrets: inherit
-

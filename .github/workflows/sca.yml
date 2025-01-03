@@ -1,5 +1,4 @@
 name: 03 SOOS SCA SARIF 
-
 on:
   workflow_dispatch:
   workflow_call:
