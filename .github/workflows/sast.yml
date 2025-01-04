@@ -30,7 +30,7 @@ jobs:
       - name: CodeQL Analysis for API
         uses: github/codeql-action/analyze@v2
         with:
-          category: "/language:javascript-api"
+          category: "/language:javascript"
 
   SAST-CodeQL-Web:
     name: Build and SAST CodeQL for Web
@@ -58,7 +58,7 @@ jobs:
       - name: CodeQL Analysis for Web
         uses: github/codeql-action/analyze@v2
         with:
-          category: "/language:javascript-web"
+          category: "/language:javascript"
 
   sast-eslint:
     name: SAST ESLint
