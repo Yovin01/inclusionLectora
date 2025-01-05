@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const uuid = require('uuid');
 let maxFileSize = 3 * 1024 * 1024; // Inicialmente 2 MB
+const rateLimit = require('express-rate-limit');
 
 const { body, validationResult,isDate } = require('express-validator');
 const RolController = require('../controls/RolController');
@@ -277,7 +278,12 @@ router.put('/cuenta/clave/:external_id',auth(), [
 router.put('/cuenta/restablecer/clave/:external_id', [
   body('clave_nueva', 'Ingrese una clave valido').exists().not().isEmpty()
 ], cuentaController.cambioClaveSoloNueva)
-router.get('/cuenta/token/:external_id', auth({ checkAdmin: true }),  cuentaController.tokenCambioClave)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
+
+router.get('/cuenta/token/:external_id', limiter, auth({ checkAdmin: true }), cuentaController.tokenCambioClave)
 router.put('/cuenta/validar',[
   body('correo', 'Ingrese un correo valido').exists().not().isEmpty().isEmail()], cuentaController.validarCambioClave)
 
