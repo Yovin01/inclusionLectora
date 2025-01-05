@@ -127,7 +127,6 @@ const Extractor = () => {
                 } else {
                     setAudioComplete(`${URLBASE}audio/completo/${info.info.nombre}.mp3`);
                     setLoading(false);
-                    mensajes("Documento guardado con éxito");
                     navegation(`/extraer/${info.info}`);
                 }
             })
