@@ -29,7 +29,8 @@
     "nodemon": "^3.1.7",
     "pdf-parse": "^1.1.1",
     "sequelize": "^6.32.1",
-    "uglify-js": "^3.19.3"
+    "uglify-js": "^3.19.3",
+    "express-rate-limit": "^7.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
