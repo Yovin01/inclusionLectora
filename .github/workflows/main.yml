@@ -58,4 +58,4 @@ jobs:
     uses: ./.github/workflows/dast.yml
     secrets: inherit
     with:
-      image-tag: ghcr.io/yovin01/inclusionlectora:main
+      image-tag: ${{ needs.docker.outputs.image-tag }}
