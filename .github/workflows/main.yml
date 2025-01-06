@@ -43,7 +43,7 @@ jobs:
     name: Build docker image
     uses: ./.github/workflows/docker.yml
     secrets: inherit
-    
+
   container-image-scan:
     needs: docker
     name: Container Image Scan
@@ -58,4 +58,4 @@ jobs:
     uses: ./.github/workflows/dast.yml
     secrets: inherit
     with:
-      image-tag: ${{ needs.docker.outputs.image-tag }}
+      image-tag: ghcr.io/yovin01/inclusionlectora:main
