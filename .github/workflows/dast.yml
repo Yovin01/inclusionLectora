@@ -32,7 +32,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Start demo app container
-        run: docker rm demoApp || true && docker run -d -p 80:80 --name demoApp ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.IMAGE_TAG }}
+        run: |
+          docker rm demoApp || true
+          docker run -d -p 80:80 --name demoApp ghcr.io/yovin01/inclusionlectora:${{ env.IMAGE_TAG }}
 
       - name: Wait for container to start
         run: timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:80)" != "200" ]]; do sleep 5; done' || false
