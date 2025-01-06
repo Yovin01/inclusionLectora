@@ -46,7 +46,6 @@ jobs:
       uses: docker/build-push-action@v3.2.0
       with:
         context: .
-        file: ./dockerfile  # Asegúrate de que el Dockerfile esté en la raíz o ajusta el path si está en otra ubicación
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

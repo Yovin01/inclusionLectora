@@ -44,7 +44,14 @@ jobs:
     uses: ./.github/workflows/docker.yml
     secrets: inherit
     
-  #Análisis de código Dinámico
+  container-image-scan:
+    needs: docker
+    name: Container Image Scan
+    uses: ./.github/workflows/container-image-scan.yml
+    secrets: inherit
+    with:
+      image-tag: ${{ needs.docker.outputs.image-tag }}
+
   dast:
     needs: [build,docker]
     name: DAST Scan
