@@ -39,18 +39,18 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=ref,event=pr
             type=ref,event=tag
             type=ref,event=branch
+            type=ref,event=pr
             type=schedule,pattern=main
+
+      - name: Debug metadata
+        run: echo "Generated tags: ${{ steps.meta.outputs.tags }}"
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v3.2.0
         with:
-          # Context set to the subfolder where the Dockerfile and project are located
-          context: ./inclusionlectora_web
+          context: ./inclusionlectora/inclusionlectora_web
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags || 'ghcr.io/${{ github.repository }}:latest' }}
           labels: ${{ steps.meta.outputs.labels }}
