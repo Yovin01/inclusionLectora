@@ -5,13 +5,13 @@ FROM node:22 AS build
 WORKDIR /app
 
 # Copia los archivos de configuración de tu proyecto
-COPY package.json package-lock.json ./
+COPY ./inclusionlectora_web/package.json ./inclusionlectora_web/package-lock.json ./
 
 # Instala las dependencias
 RUN npm install
 
 # Copia el resto del código de la aplicación
-COPY . .
+COPY ./inclusionlectora_web/ ./
 
 # Construye la aplicación para producción
 RUN npm run build
