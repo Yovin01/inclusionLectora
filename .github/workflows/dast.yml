@@ -46,17 +46,17 @@ jobs:
 
       - name: Construir la imagen Docker
         run: |
-          cd inclusionlectora_web
+          
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
 
       - name: Push de la imagen Docker al Registro
         run: |
-          cd inclusionlectora_web
+          
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Iniciar el contenedor de la aplicación
         run: |
-          cd inclusionlectora_web
+          
           docker rm demoApp || true
           docker run -d -p 8080:80 --name demoApp ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
