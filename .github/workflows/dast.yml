@@ -1,0 +1,88 @@
+name: 50 DAST Scan Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        type: string
+        description: 'La etiqueta de la imagen Docker a crear y escanear'
+        required: true
+
+  workflow_call:
+    inputs:
+      image-tag:
+        type: string
+        description: 'La etiqueta de la imagen Docker a crear y escanear'
+        required: true
+
+env:
+  # Registro de contenedores
+  REGISTRY: ghcr.io
+  # Nombre de la imagen (ajusta <usuario> y <repositorio> según corresponda)
+  IMAGE_NAME: ${{ github.repository }}
+  # Etiqueta de la imagen proporcionada como entrada
+  IMAGE_TAG: ${{ github.event.inputs['image-tag'] }}
+
+jobs:
+  build-and-scan:
+    name: Construir y Escanear Imagen Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar QEMU para soportar múltiples arquitecturas
+        uses: docker/setup-qemu-action@v2
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Iniciar sesión en el Registro de Contenedores
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir la imagen Docker
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ./inclusionlectora_web
+
+      - name: Push de la imagen Docker al Registro
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      - name: Iniciar el contenedor de la aplicación
+        run: |
+          docker rm demoApp || true
+          docker run -d -p 8080:80 --name demoApp ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      - name: Esperar a que el contenedor esté listo
+        run: |
+          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8080)" != "200" ]]; do sleep 5; done' || false
+
+      - name: Probar el contenedor
+        run: |
+          curl -s http://localhost:8080
+
+      - name: Escaneo Completo con ZAP
+        uses: zaproxy/action-full-scan@v0.11.0
+        with:
+          docker_name: 'owasp/zap2docker-stable'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target: 'http://localhost:8080'
+          cmd_options: '-a -j -l WARN -z "-addoninstallall"'
+          allow_issue_writing: false
+
+      - name: Subir el reporte HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAST_Report.html
+          path: zap-report.html
+
+      - name: Detener y limpiar el contenedor Docker
+        if: always()
+        run: |
+          docker stop demoApp && docker rm demoApp
+          docker container prune --force
+          docker image prune --force
