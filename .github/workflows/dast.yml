@@ -46,7 +46,7 @@ jobs:
 
       - name: Construir la imagen Docker
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ./inclusionlectora_web
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} /inclusionlectora_web
 
       - name: Push de la imagen Docker al Registro
         run: |
