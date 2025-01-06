@@ -17,7 +17,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_TAG: ${{ github.event.inputs['image-tag'] }}
+  IMAGE_TAG: ghcr.io/yovin01/inclusionlectora:main
 
 jobs:
   dast-scan:
