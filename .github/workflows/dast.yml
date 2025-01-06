@@ -6,22 +6,19 @@ on:
       image-tag:
         type: string
         description: 'La etiqueta de la imagen Docker a crear y escanear'
-        required: true
+        required: false
 
   workflow_call:
     inputs:
       image-tag:
         type: string
         description: 'La etiqueta de la imagen Docker a crear y escanear'
-        required: true
+        required: false
 
 env:
-  # Registro de contenedores
   REGISTRY: ghcr.io
-  # Nombre de la imagen (ajusta <usuario> y <repositorio> según corresponda)
   IMAGE_NAME: ${{ github.repository }}
-  # Etiqueta de la imagen proporcionada como entrada
-  IMAGE_TAG: ${{ github.event.inputs['image-tag'] }}
+  IMAGE_TAG: ${{ github.event.inputs['image-tag'] || 'latest' }}
 
 jobs:
   build-and-scan:
@@ -44,19 +41,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Validar etiqueta de la imagen
+        run: |
+          if [ -z "${{ env.IMAGE_TAG }}" ]; then
+            echo "La etiqueta de la imagen está vacía. Estableciendo a 'latest'."
+            IMAGE_TAG=latest
+          fi
+
       - name: Construir la imagen Docker
         run: |
-          
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ./inclusionlectora/inclusionlectora_web
 
       - name: Push de la imagen Docker al Registro
         run: |
-          
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Iniciar el contenedor de la aplicación
         run: |
-          
           docker rm demoApp || true
           docker run -d -p 8080:80 --name demoApp ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
