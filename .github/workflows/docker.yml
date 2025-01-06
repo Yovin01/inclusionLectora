@@ -50,7 +50,7 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v3.2.0
         with:
-          context: ./inclusionlectora/inclusionlectora_web
+          context: ./inclusionlectora_web
           push: true
           tags: ${{ steps.meta.outputs.tags || 'ghcr.io/${{ github.repository }}:latest' }}
           labels: ${{ steps.meta.outputs.labels }}
