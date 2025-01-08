@@ -145,7 +145,7 @@ const CambioClave = () => {
                             className="btn-positivo"
                             disabled={!claveCoincide}
                         >
-                            {!claveCoincide?"": 'Cambiar Clave'}
+                           Cambiar Clave
                        
                         </button>
                     </div>
