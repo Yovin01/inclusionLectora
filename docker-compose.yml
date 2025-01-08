@@ -17,6 +17,8 @@ services:
       - db
     networks:
       - app-network
+    volumes:
+      - backend_data:/usr/src/app/storage
 
   frontend:
     build:
@@ -47,3 +49,4 @@ networks:
 
 volumes:
   db_data:
+  backend_data:
