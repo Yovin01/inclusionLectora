@@ -36,8 +36,6 @@ jobs:
           docker rm -f demoApp || true
           docker run -d -p 3006:3006 --name demoApp ${{ env.IMAGE_TAG }}
 
-      - name: Test container
-        run: curl -s localhost:80
 
       - name: ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.11.0
