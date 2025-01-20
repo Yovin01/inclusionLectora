@@ -5,7 +5,7 @@ const gtts = require('gtts');
 const uuid = require('uuid');
 const { exec } = require('child_process');
 const models = require('../models');
-const { inflate } = require('zlib');
+const axios = require('axios');
 
 const saveAudioWithRetries = async (gttsInstance, filePath, retries = 1) => {
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -62,7 +62,47 @@ class DocumentoController {
             const txtFileName = documentoNameCifrado.replace(/\.pdf$/, '.txt');
             const carpetaName = documentoNameCifrado.replace(/\.pdf$/, '');
             const txtFilePath = path.join(__dirname, '../public/documentos/', txtFileName);
-            fs.writeFileSync(txtFilePath, textoPlano);
+                   // Convertir archivo PDF a Base64 para enviarlo a la API
+        const base64File = fileBuffer.toString('base64');
+        const docxFilePath = pdfFilePath.replace(/\.pdf$/, '.docx');
+
+        // Llamar a la API de ConvertApi para transformar PDF a DOCX
+        const convertApiResponse = await axios.post(
+            'https://us-v2.convertapi.com/convert/pdf/to/docx',
+            {
+                Parameters: [
+                    {
+                        Name: 'File',
+                        FileValue: {
+                            Name: documentoNameCifrado,
+                            Data: base64File
+                        }
+                    },
+                    {
+                        Name: 'StoreFile',
+                        Value: true
+                    }
+                ]
+            },
+            {
+                headers: {
+                    Authorization: 'Bearer secret_07jR9q8gUxorWxpS',
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (!convertApiResponse.data || !convertApiResponse.data.Files || convertApiResponse.data.Files.length === 0) {
+            throw new Error('Error en la conversión del archivo PDF a DOCX.');
+        }
+
+        const docxUrl = convertApiResponse.data.Files[0].Url;
+
+        // Descargar el archivo DOCX generado
+        const docxResponse = await axios.get(docxUrl, { responseType: 'arraybuffer' });
+        fs.writeFileSync(docxFilePath, docxResponse.data);
+
+        console.log('Archivo convertido a DOCX en:', docxFilePath);
 
             const audioDir = path.join(__dirname, `../public/audio/partes/${carpetaName}`);
             // Recorta el nombre si tiene más de 80 caracteres

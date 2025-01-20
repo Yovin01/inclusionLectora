@@ -228,7 +228,7 @@ router.delete('/documento/:external_id',auth(), documentoController.eliminar);
 router.get('/documento/entidad/:id_entidad/:nombre',auth(), documentoController.exist);
 
 router.get('/audio/descargar/:filename', (req, res) => {
-  const filePath = path.join(__dirname, '../public/audio/completo/', req.params.filename);  // Ajusta la ruta a tus necesidades
+  const filePath = path.join(__dirname, '../public/audio/completo/', req.params.filename); 
   res.download(filePath, (err) => {
       if (err) {
           console.error('Error al descargar el archivo', err);
@@ -236,6 +236,17 @@ router.get('/audio/descargar/:filename', (req, res) => {
       }
   });
 });
+
+router.get('/docx/descargar/:filename', (req, res) => {
+  const filePath = path.join(__dirname, '../public/documentos/', req.params.filename); 
+  res.download(filePath, (err) => {
+      if (err) {
+          console.error('Error al descargar el archivo', err);
+          res.status(500).send('Error al descargar el archivo');
+      }
+  });
+});
+
 
 router.put('/modificar/entidad', auth(),(req, res, next) => {
   uploadFotoPersona.single('foto')(req, res, (error) => {

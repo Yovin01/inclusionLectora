@@ -138,9 +138,9 @@ const Extractor = () => {
     };
     const togglePlayPause = () => {
         if (isPlaying) {
-            audioRef.current.pause();
-        } else {
             audioRef.current.play();
+        } else {
+            audioRef.current.pause();
         }
         setIsPlaying(!isPlaying);
     };
@@ -190,13 +190,13 @@ const Extractor = () => {
                                     </header>
                                     <div className="card-body">
                                         <div className="audio-container">
-                                        <audio
-    ref={audioRef}
-    src={audioComplete}
-    controls
-    autoPlay
-    style={{ width: '70%' }}
-/>
+                                            <audio
+                                                ref={audioRef}
+                                                src={audioComplete}
+                                                controls
+                                                autoPlay
+                                                style={{ width: '70%' }}
+                                            />
 
                                         </div>
 
@@ -205,7 +205,7 @@ const Extractor = () => {
                                                 -10 segundos
                                             </button>
                                             <button className="btn-positivoazul text-white" onClick={togglePlayPause}>
-                                                {isPlaying ? "Pausa" : "Play"}
+                                                {isPlaying ? "Play" : "Pausa"}
                                             </button>
                                             <button className="btn-positivoazul text-white" onClick={() => skipTime(10)}>
                                                 +10 segundos
@@ -249,20 +249,36 @@ const Extractor = () => {
                                     {showPdf ? "OCULTAR PDF" : "VER PDF"}
                                 </button>
                                 {audioComplete && (
-                                    <button
-                                        className="btn-positivo text-white"
-                                        onClick={() => {
-                                            const link = document.createElement('a');
-                                            link.href = `${URLBASE}api/audio/descargar/${external_id}.mp3`;
-                                            link.download = audioName ? `${audioName}.mp3` : "audio.mp3";
-                                            document.body.appendChild(link);
-                                            link.click();
-                                            document.body.removeChild(link);
-                                        }}
-                                    >
-                                        DESCARGAR AUDIO
-                                    </button>
-                                )}
+                                    <div>
+                                        <button
+                                            className="btn-positivo text-white"
+                                            onClick={() => {
+                                                const link = document.createElement('a');
+                                                link.href = `${URLBASE}api/audio/descargar/${external_id}.mp3`;
+                                                link.download = audioName ? `${audioName}.mp3` : "audio.mp3";
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            }}
+                                        >
+                                            DESCARGAR AUDIO
+                                        </button>
+                                        <button
+                                            className="btn-positivo text-white"
+                                            onClick={() => {
+                                                const link = document.createElement('a');
+                                                link.href = `${URLBASE}api/docx/descargar/${external_id}.docx`;
+                                                link.download = audioName ? `${audioName}.docx` : "doc.docx";
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            }}
+                                        >
+                                            DESCARGAR DOCX
+                                        </button>
+                                    </div>
+                                )
+                                }
                             </div>
                         )}
 

@@ -4,10 +4,17 @@ FROM node:22
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
+# Instala FFmpeg
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copia los archivos de configuración de tu proyecto
 COPY package.json package-lock.json ./
 
-# Instala las dependencias
+# Instala las dependencias de Node.js
 RUN npm install
 
 # Copia el resto del código de la aplicación
