@@ -59,7 +59,7 @@ const Login = () => {
 
                                 </div>
                                 <div className="d-flex align-items-center">
-                                    <img src= "/logo192.png" alt="Inclusión Lectora" className="rounded-circle" style={{ width: '250px' }} />
+                                    <img src= "/logoConfondo.png" alt="Inclusión Lectora" style={{ width: '300px' }} />
                                 </div>
                             </div>
                         </div>

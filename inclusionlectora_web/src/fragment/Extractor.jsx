@@ -22,6 +22,7 @@ const Extractor = () => {
     const audioRef = useRef(null);
     const beepInterval = useRef(null);
     const [audioName, setAudioName] = useState('');
+    const [audioNotFound, setAudioNotFound] = useState(false);
 
     const playSound = (path) => {
         const audio = new Audio(path);
@@ -30,19 +31,25 @@ const Extractor = () => {
 
     useEffect(() => {
         if (external_id && external_id !== "new") {
-            setAudioComplete(`${URLBASE}audio/completo/${external_id}.mp3`);
+            const audioPath = `${URLBASE}audio/completo/${external_id}.mp3`;
+            setAudioComplete(audioPath);
             setFileURL(`${URLBASE}documentos/${external_id}.pdf`);
+            
             peticionGet(getToken(), `documento/one/${external_id}`).then((info) => {
                 if (info.code === 200) {
                     setAudioName(info.info.nombre);
                 }
             });
-            peticionGet(getToken(), `audio/${external_id}`).then((info) => {
-                if (info.code === 200) {
-                    setLastPlaybackTime(parseFloat(info.info.tiempo_reproduccion));
-                }
-            });
 
+            peticionGet(getToken(), `audio/${external_id}`)
+                .then((info) => {
+                    if (info.code === 200) {
+                        setLastPlaybackTime(parseFloat(info.info.tiempo_reproduccion));
+                    }
+                })
+                .catch(() => {
+                    setAudioNotFound(true); // Establece el estado si no se encuentra el audio
+                });
         }
     }, [external_id]);
 
@@ -164,6 +171,24 @@ const Extractor = () => {
         };
         peticionPut(getToken(), `audio/${external_id}`, data);
     };
+    if (audioNotFound) {
+        return (
+            <div>
+                <header>
+                    <MenuBar />
+                </header>
+                <main className="contenedor-centro">
+                    <section className="cart">
+                        <h2>Audio no encontrado</h2>
+                        <p>El audio solicitado ya no está disponible o fue eliminado.</p>
+                        <button className="btn-positivo text-white" onClick={() => navegation('/dashboard')}>
+                            Regresar al inicio
+                        </button>
+                    </section>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div>
