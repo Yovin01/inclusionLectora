@@ -18,7 +18,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.21.0",
     "express-rate-limit": "^7.5.0",
-    "express-validator": "^7.0.1",
+    "express-validator": "^7.2.1",
     "gtts": "^0.2.1",
     "http-errors": "~1.8.1",
     "jade": "^1.11.0",
